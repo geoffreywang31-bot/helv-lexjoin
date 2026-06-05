@@ -1,0 +1,4537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LexForge — 法律法务智能体平台</title>
+<style>
+/* ===== RESET & FOUNDATION ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Brand: vibrant sky blue — Linear/Figma-inspired */
+  --brand: #C4B89A;
+  --brand-hover: #ADA083;
+  --brand-light: #F5F5F5;
+
+  /* Surfaces: warm bright whites — Claude + ChatGPT hybrid */
+  --surface-base: #F8F9FA; /* 浅灰白色 */
+  --surface-elevated: #FFFFFF;
+  --surface-overlay: #FFFFFF;
+  --surface-input: #F1F3F5;
+  --surface-sidebar: #F8F9FA; /* 侧边栏浅灰白色 */
+  --surface-hover: #F1F3F5;
+
+  /* Borders: ultra-subtle, nearly invisible */
+  --border-subtle: #EDEDEE;
+  --border-default: #E3E3E5;
+  --border-strong: #D3D3D7;
+
+  /* Text: refined hierarchy */
+  --text-primary: #1A1A1A;
+  --text-secondary: #5A5A5A;
+  --text-tertiary: #999999;
+  --text-disabled: #C5C5C5;
+  --text-inverse: #FFFFFF;
+
+  /* Semantic */
+  --risk-critical: oklch(0.55 0.18 25);
+  --risk-critical-bg: oklch(0.97 0.03 25);
+  --risk-warning: oklch(0.62 0.14 80);
+  --risk-warning-bg: oklch(0.97 0.03 80);
+  --risk-safe: oklch(0.50 0.12 160);
+  --risk-safe-bg: oklch(0.96 0.03 160);
+  --accent-info: #C4B89A;
+  --accent-info-bg: #F5F5F5;
+
+  /* Accent */
+  --accent: #C4B89A;
+
+  /* Shadows: refined, warm */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.07);
+
+  /* Spacing: 4px base system */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radius: modern rounded */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Typography - modern sans-serif */
+  --font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: "SF Mono", "Cascadia Code", "Consolas", "Monaco", "Roboto Mono", monospace;
+
+  /* Type scale */
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+
+  /* Type weights */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Layout */
+  --header-h: 48px;
+
+  /* Timing: fast, snappy */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Z-index */
+  --z-header: 100;
+  --z-overlay: 200;
+  --z-nav: 300;
+  --z-expert: 400;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--surface-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* ===== TOP HEADER ===== */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 200px;
+  right: 0;
+  height: var(--header-h);
+  background: var(--surface-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  z-index: var(--z-header);
+  transition: left 250ms var(--ease-out-expo);
+}
+.app-header.sidebar-collapsed {
+  left: 56px;
+}
+
+
+.header-module {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.module-label {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+}
+
+.module-badge {
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--accent);
+  background: var(--brand-light);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.01em;
+}
+
+.header-search {
+  flex: 1;
+  max-width: 420px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.header-search input {
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-input);
+  outline: none;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.header-search input::placeholder {
+  color: var(--text-tertiary);
+}
+.header-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(52,199,89,0.15);
+  background: var(--surface-elevated);
+}
+
+.search-shortcut {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 1px 5px;
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  transition: all var(--duration-fast);
+  position: relative;
+}
+.icon-btn:hover {
+  background: var(--surface-input);
+  color: var(--text-primary);
+}
+
+.notif-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  background: var(--risk-critical);
+  border-radius: 50%;
+  border: 1.5px solid var(--surface-elevated);
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 3px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+.user-btn:hover {
+  background: var(--surface-input);
+}
+
+.user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--text-inverse);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  background: var(--surface-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+  transition: width 250ms var(--ease-out-expo);
+  overflow: hidden;
+}
+.sidebar.collapsed {
+  width: 56px;
+}
+
+/* ---- sidebar-logo ---- */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  flex-shrink: 0;
+  height: 48px;
+  box-sizing: border-box;
+  transition: padding 250ms var(--ease-out-expo);
+  user-select: none;
+}
+.sidebar-logo-img {
+  width: auto;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  transition: all 250ms var(--ease-out-expo);
+}
+.sidebar.collapsed .sidebar-logo {
+  padding: 8px;
+  height: 48px;
+}
+.sidebar.collapsed .sidebar-logo-img {
+  width: auto;
+  height: 32px;
+}
+.sidebar.collapsed .sidebar-logo-img {
+  width: auto;
+  height: 28px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sidebar-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-regular);
+  letter-spacing: -0.01em;
+  color: #333333; /* 深灰色文字 */
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  text-align: left;
+  position: relative;
+}
+.sidebar-item:hover {
+  background: #F1F3F5;
+  color: #333333;
+}
+.sidebar-item.active {
+  color: #C4B89A; /* 绿色文字 */
+  background: none;
+  font-weight: var(--fw-medium);
+}
+.sidebar-item.active::before {
+  content: none; /* 移除左侧指示条 */
+}
+
+.sidebar-icon {
+  font-size: var(--text-lg);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C4B89A; /* 绿色图标 */
+}
+
+.sidebar-sub-arrow {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.sidebar-label {
+  transition: opacity 200ms var(--ease-out-expo);
+  opacity: 1;
+  overflow: hidden;
+}
+.sidebar.collapsed .sidebar-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-footer {
+  padding: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  transition: all var(--duration-fast);
+  width: 100%;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sidebar-collapse-btn:hover {
+  background: var(--surface-input);
+  color: var(--text-primary);
+}
+
+.sidebar-collapse-icon {
+  font-size: var(--text-lg);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 250ms var(--ease-out-expo);
+}
+.sidebar.collapsed .sidebar-collapse-icon {
+  transform: rotate(180deg);
+}
+
+.sidebar-collapse-label {
+  transition: opacity 200ms var(--ease-out-expo);
+  opacity: 1;
+  overflow: hidden;
+}
+.sidebar.collapsed .sidebar-collapse-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* ===== MAIN WORKSPACE ===== */
+.main-workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ===== FILE PANEL (Left) ===== */
+.file-panel {
+  display: none;
+}
+
+.panel-section {
+  padding: 12px 16px;
+}
+
+.panel-section + .panel-section {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.section-label {
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Upload zone: compact, refined */
+.upload-zone {
+  padding: 20px 16px;
+  border: 1.5px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  background: var(--surface-base);
+}
+.upload-zone:hover {
+  border-color: var(--accent);
+  background: var(--surface-input);
+}
+.upload-zone:active {
+  transform: scale(0.995);
+}
+
+.upload-icon {
+  font-size: 22px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  transition: color var(--duration-fast);
+}
+.upload-zone:hover .upload-icon {
+  color: var(--accent);
+}
+
+.upload-text {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.upload-hint {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+/* File list */
+.file-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 2px;
+  transition: background var(--duration-fast);
+  cursor: default;
+}
+.file-row:hover {
+  background: var(--surface-input);
+}
+
+.file-icon-box {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  flex-shrink: 0;
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+}
+
+.file-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-meta-name {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+
+.file-meta-info {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 8px;
+}
+
+.file-role-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.file-role-select {
+  width: 100px;
+  padding: 3px 6px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  background: var(--surface-base);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L4 4L7 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 5px center;
+  padding-right: 24px;
+}
+.file-role-select:hover {
+  border-color: var(--border-default);
+}
+.file-role-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.role-clear-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: all var(--duration-fast);
+  z-index: 2;
+}
+.role-clear-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-input);
+}
+
+.file-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--risk-safe);
+  flex-shrink: 0;
+}
+
+/* ===== CHAT PANEL (Center) ===== */
+.chat-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-base);
+  border-right: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+.chat-top {
+  padding: 10px 0;
+  background: var(--surface-input);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.chat-heading {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  padding: 0 16px;
+  text-align: center;
+}
+
+/* Quick grid: refined cards */
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 10px 16px;
+}
+
+.quick-tile {
+  padding: 12px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  text-align: center;
+}
+.quick-tile:hover {
+  border-color: var(--accent);
+  background: var(--brand-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tile-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.tile-title {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.tile-desc {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.3;
+}
+
+.free-query {
+  padding: 6px 16px 10px;
+}
+
+.free-query-label {
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.free-query-hint {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* Messages: clean, minimal */
+.chat-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msg {
+  padding: 10px 14px;
+  margin-bottom: 4px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.msg-user .msg-body {
+  background: var(--surface-input);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.msg-ai .msg-body {
+  background: var(--surface-elevated);
+  border-left: 3px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.msg-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--text-inverse);
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Progress block */
+.progress-block {
+  margin: 8px 16px;
+  padding: 12px 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.progress-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.progress-eta {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+.progress-track {
+  height: 3px;
+  background: var(--border-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 300ms var(--ease-out-quint);
+}
+
+.stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-default);
+  flex-shrink: 0;
+}
+.stage-dot.active {
+  background: var(--accent);
+  animation: pulse-dot 1.5s infinite;
+}
+.stage-dot.done {
+  background: var(--risk-safe);
+}
+.stage-dot.pending {
+  background: var(--border-default);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.stage-name {
+  flex: 1;
+}
+
+.stage-pct {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+/* Result block */
+.result-block {
+  margin: 8px 16px;
+  padding: 12px 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.result-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.result-title {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.result-expand-btn {
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  padding: 2px 0;
+  transition: opacity var(--duration-fast);
+}
+.result-expand-btn:hover {
+  opacity: 0.7;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 8px 4px;
+  background: var(--surface-base);
+  border-radius: var(--radius-sm);
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.stat-value {
+  font-size: var(--text-lg);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stat-value.color-purple { color: #7C3AED; }
+.stat-value.color-red { color: #DC2626; }
+.stat-value.color-darkred { color: #B91C1C; }
+.stat-value.color-orange { color: #F59E0B; }
+.stat-value.color-green { color: #059669; }
+
+.stat-label {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.findings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.finding-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
+  line-height: 1.4;
+}
+.finding-row.critical {
+  background: var(--risk-critical-bg);
+  color: var(--risk-critical);
+}
+.finding-row.warning {
+  background: var(--risk-warning-bg);
+  color: var(--risk-warning);
+}
+.finding-row.info {
+  background: var(--accent-info-bg);
+  color: var(--accent-info);
+}
+
+.finding-icon {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.finding-text {
+  flex: 1;
+}
+
+/* Expert preview */
+#expertPreview {
+  margin: 8px 16px;
+  padding: 12px 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+#expertPreview .progress-header-row {
+  margin-bottom: 8px;
+}
+
+#expertPreview .stage-list {
+  margin-bottom: 8px;
+}
+
+#expertPreview .stage-row {
+  padding: 3px 0;
+}
+
+/* Chat input area */
+.chat-input-area {
+  padding: 10px 16px 12px;
+  background: var(--surface-elevated);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.chat-input-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-base);
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  min-height: 36px;
+  max-height: 200px;
+  overflow-y: auto;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.chat-input-field::placeholder {
+  color: var(--text-tertiary);
+}
+.chat-input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(52,199,89,0.15);
+  background: var(--surface-elevated);
+}
+
+.send-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--text-lg);
+  transition: all var(--duration-fast);
+  flex-shrink: 0;
+}
+.send-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-0.5px);
+}
+
+.input-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+}
+.action-chip:hover {
+  border-color: var(--border-default);
+  background: var(--surface-input);
+}
+
+.toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-track {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--border-default);
+  border-radius: 9px;
+  transition: background var(--duration-fast);
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 2px;
+  top: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--duration-fast) var(--ease-out-quint);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.toggle-input:checked + .toggle-track {
+  background: var(--accent);
+}
+.toggle-input:checked + .toggle-track::after {
+  transform: translateX(14px);
+}
+
+.toggle-label {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+/* ===== REPORT PANEL (Right) ===== */
+.report-panel {
+  flex: 0.6;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-elevated);
+}
+
+.report-top {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-elevated);
+}
+
+.report-title {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.report-sub {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 10px;
+}
+
+.report-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.report-sect {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sect-heading {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+/* Diff table: clean, no heavy backgrounds */
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-2xs);
+}
+.diff-table th {
+  text-align: left;
+  padding: 6px 8px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--text-2xs);
+}
+.diff-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+.diff-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Risk blocks: restrained */
+.risk-block {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  border: 1px solid transparent;
+}
+.risk-block.critical {
+  background: var(--risk-critical-bg);
+  border-color: rgba(220,38,38,0.3);
+}
+.risk-block.warning {
+  background: var(--risk-warning-bg);
+  border-color: rgba(234,179,8,0.3);
+}
+
+.risk-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.risk-icon-sm {
+  font-size: 12px;
+}
+.risk-block.critical .risk-icon-sm { color: var(--risk-critical); }
+.risk-block.warning .risk-icon-sm { color: var(--risk-warning); }
+
+.risk-title-text {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.risk-desc-text {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.risk-actions-row {
+  display: flex;
+  gap: 6px;
+}
+
+.risk-action-btn {
+  padding: 3px 10px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+}
+.risk-action-btn.inquire {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.risk-action-btn.inquire:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.risk-action-btn.adopt {
+  background: var(--accent);
+  border: none;
+  color: var(--text-inverse);
+}
+.risk-action-btn.adopt:hover {
+  opacity: 0.88;
+}
+
+/* Suggestion blocks */
+.suggestion-block {
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  background: var(--surface-elevated);
+  transition: all var(--duration-fast);
+}
+.suggestion-block:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-xs);
+}
+
+.sugg-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sugg-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-default);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.sugg-check:hover {
+  border-color: var(--accent);
+}
+
+.sugg-name {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.sugg-desc-text {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.sugg-loc {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.sugg-text {
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: var(--surface-base);
+  border-radius: var(--radius-xs);
+  line-height: 1.5;
+}
+
+.report-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 8px;
+  background: var(--surface-elevated);
+}
+
+.report-footer-btn {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  text-align: center;
+}
+.report-footer-btn.primary {
+  background: var(--accent);
+  color: var(--text-inverse);
+  border: none;
+}
+.report-footer-btn.primary:hover {
+  opacity: 0.88;
+}
+.report-footer-btn.secondary {
+  background: none;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.report-footer-btn.secondary:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-input);
+}
+
+/* ===== EXPERT PANEL ===== */
+.expert-panel {
+  position: fixed;
+  top: var(--header-h);
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  background: var(--surface-elevated);
+  border-left: 1px solid var(--border-subtle);
+  z-index: var(--z-expert);
+  transform: translateX(100%);
+  transition: transform var(--duration-slow) var(--ease-out-expo);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+.expert-panel.open {
+  transform: translateX(0);
+}
+
+.expert-top {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.expert-heading {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.expert-desc {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+.expert-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
+.plan-block {
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  background: var(--surface-elevated);
+}
+
+.plan-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.plan-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-default);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.plan-check:hover {
+  border-color: var(--accent);
+}
+.plan-check.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  position: relative;
+}
+.plan-check.checked::after {
+  content: '';
+  width: 4px; height: 7px;
+  border: solid var(--text-inverse);
+  border-width: 0 1.5px 1.5px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+  position: absolute;
+  top: 45%; left: 50%;
+}
+
+.plan-agent-name {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.plan-detail {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-left: 24px;
+}
+
+.plan-detail-label {
+  font-weight: var(--fw-semibold);
+  color: var(--text-tertiary);
+  margin-right: 4px;
+}
+
+.expert-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 8px;
+}
+
+.expert-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+}
+.expert-btn.confirm {
+  background: var(--accent);
+  color: var(--text-inverse);
+  border: none;
+}
+.expert-btn.confirm:hover {
+  opacity: 0.88;
+}
+.expert-btn.cancel {
+  background: none;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.expert-btn.cancel:hover {
+  background: var(--surface-input);
+  border-color: var(--border-strong);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) {
+  #appLayout {
+    flex-direction: column;
+  }
+  .chat-panel, .report-panel {
+    width: 100% !important;
+    max-width: none;
+    min-width: 0;
+    flex: none;
+  }
+  .chat-panel { max-height: 40vh; }
+  .report-panel { max-height: 45vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+
+
+
+/* Enhanced risk card hover */
+.risk-card.enhanced:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+.risk-card.enhanced {
+  transition: all 0.2s ease;
+}
+
+/* Locate button hover */
+.locate-origin-btn:hover {
+  border-color: #C4B89A !important;
+  color: #C4B89A !important;
+  background: #F5F5F5 !important;
+}
+
+/* Suggestion card hover */
+.suggestion-card:hover {
+  border-color: #C4B89A !important;
+  box-shadow: 0 2px 8px rgba(52,199,89,0.1);
+}
+
+/* Chatt empty fix */
+.chat-empty {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-tertiary);
+  user-select: none;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--surface-base);
+}
+.chat-empty.show {
+  display: flex;
+}
+
+/* Export PDF button hover */
+.export-pdf-btn:hover {
+  background: #F5F5F5 !important;
+}
+
+/* Empty chat state */
+.chat-empty {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-tertiary);
+  user-select: none;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--surface-base);
+}
+.chat-empty.show {
+  display: flex;
+}
+.chat-empty-icon {
+  opacity: 0.35;
+}
+.chat-empty-text {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.chat-empty-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+
+
+/* ===== HOME PAGE ===== */
+#homePage {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-h));
+  margin-top: var(--header-h);
+  margin-left: 200px;
+  transition: margin-left 250ms var(--ease-out-expo);
+  overflow-y: auto;
+  background: var(--surface-base);
+}
+#homePage.sidebar-collapsed {
+  margin-left: 56px;
+}
+#homePage.hidden {
+  display: none;
+}
+
+.home-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 20px;
+  text-align: center;
+}
+
+.home-title {
+  font-size: 2rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.home-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-tertiary);
+  font-weight: var(--fw-regular);
+  margin-bottom: 32px;
+}
+
+/* Home Upload Zone */
+.home-upload-zone {
+  width: 100%;
+  max-width: 600px;
+  padding: 40px 20px;
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  background: var(--surface-elevated);
+  margin-bottom: 16px;
+}
+.home-upload-zone:hover {
+  border-color: var(--accent);
+  background: var(--brand-light);
+}
+.home-upload-zone .upload-icon-area {
+  margin-bottom: 12px;
+  color: var(--text-tertiary);
+}
+.home-upload-zone .upload-title {
+  font-size: var(--text-base);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.home-upload-zone .upload-hint-text {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* Home File Cards */
+.home-file-list {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.home-file-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast);
+}
+.home-file-card:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-xs);
+}
+
+.home-file-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--brand-light);
+  color: var(--accent);
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.home-file-info {
+  flex: 1;
+  min-width: 0;
+}
+.home-file-name {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-file-meta {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.home-file-type-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+}
+.home-file-delete {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: all var(--duration-fast);
+}
+.home-file-delete:hover {
+  background: var(--risk-critical-bg);
+  color: var(--risk-critical);
+}
+
+/* Home Chat Input */
+.home-chat-area {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.home-input-field {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-elevated);
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  min-height: 44px;
+  max-height: 120px;
+  overflow-y: auto;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.home-input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(52,199,89,0.15);
+}
+.home-input-field::placeholder {
+  color: var(--text-tertiary);
+}
+.home-send-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--text-lg);
+  transition: all var(--duration-fast);
+  flex-shrink: 0;
+}
+.home-send-btn:hover {
+  opacity: 0.88;
+}
+
+/* ===== REPORT TABS — capsule segmented control ===== */
+.report-tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  gap: 0;
+  margin: 12px auto;
+  background: #F0F0F0;
+  border-radius: 10px;
+  flex-shrink: 0;
+  width: fit-content;
+}
+.report-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #888888;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+.report-tab-btn:hover {
+  color: #555555;
+}
+.report-tab-btn.active {
+  color: #1a1a1a;
+  font-weight: 600;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+}
+.report-tab-icon {
+  display: none;
+}
+.report-tab-icon svg {
+  display: none;
+}
+
+.report-tab-content {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  flex-direction: column;
+}
+.report-tab-content.active {
+  display: flex;
+}
+
+/* ===== Task List Tab ===== */
+.task-step-card {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  transition: background var(--duration-fast);
+  cursor: pointer;
+  user-select: none;
+}
+.task-step-card:hover {
+  background: var(--surface-base);
+}
+
+.task-step-title::after {
+  content: ' ▸';
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+.task-step-card.expanded .task-step-title::after {
+  transform: rotate(90deg);
+}
+
+.task-step-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+.task-step-icon.done {
+  background: var(--risk-safe-bg);
+  color: var(--risk-safe);
+}
+.task-step-icon.waiting {
+  background: oklch(0.95 0.04 70);
+  color: oklch(0.62 0.14 70);
+}
+.task-step-icon.running {
+  background: var(--brand-light);
+  color: var(--accent);
+  animation: pulse-dot 1.5s infinite;
+}
+.task-step-icon.pending {
+  background: var(--surface-input);
+  color: var(--text-tertiary);
+}
+
+.task-step-body {
+  flex: 1;
+  min-width: 0;
+}
+.task-step-title {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.task-step-desc {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.task-step-thinking {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--surface-input);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.task-step-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+/* ── Step fade-in animation ── */
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.task-step-card { display: none; }
+.task-step-card.step-visible {
+  display: flex;
+  animation: stepFadeIn 0.4s ease-out;
+}
+
+/* ── Think detail expand panel ── */
+.think-detail {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  color: #6c757d;
+  border-left: 3px solid #0E9E8E;
+  margin-top: 8px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease, padding 0.35s ease, margin 0.35s ease;
+  line-height: 1.6;
+}
+
+.task-identity-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.task-identity-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--brand-light);
+}
+.task-identity-btn.selected {
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-color: var(--accent);
+}
+
+/* ===== WPS Viewer (in chat panel) ===== */
+.wps-viewer {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  background: var(--surface-elevated);
+  overflow: hidden;
+}
+.wps-viewer.active {
+  display: flex;
+}
+
+.wps-viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-base);
+}
+.wps-viewer-filename {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+.wps-close-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  color: var(--text-tertiary);
+  font-size: 18px;
+  transition: all var(--duration-fast);
+}
+.wps-close-btn:hover {
+  background: var(--surface-input);
+  color: var(--text-primary);
+}
+
+.wps-viewer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  font-size: var(--text-sm);
+  line-height: 2;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.wps-doc-title {
+  font-size: var(--text-xl);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.wps-doc-body p {
+  margin-bottom: 12px;
+  text-indent: 2em;
+}
+
+.wps-del {
+  text-decoration: line-through;
+  color: var(--risk-critical);
+  background: var(--risk-critical-bg);
+  padding: 0 2px;
+}
+
+.wps-ins {
+  text-decoration: underline;
+  text-decoration-color: var(--risk-safe);
+  text-underline-offset: 4px;
+  color: var(--risk-safe);
+  background: var(--risk-safe-bg);
+  padding: 0 2px;
+}
+
+.wps-comment-bubble {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 2px 8px;
+  background: oklch(0.95 0.04 80);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  color: oklch(0.55 0.14 80);
+  cursor: pointer;
+  vertical-align: super;
+}
+
+/* ===== Thinking Panel ===== */
+.thinking-panel {
+  margin: 8px 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  overflow: hidden;
+}
+.thinking-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  user-select: none;
+  transition: background var(--duration-fast);
+}
+.thinking-toggle:hover {
+  background: var(--surface-input);
+}
+.thinking-arrow {
+  font-size: 10px;
+  transition: transform var(--duration-fast);
+}
+.thinking-panel.open .thinking-arrow {
+  transform: rotate(90deg);
+}
+.thinking-content {
+  display: none;
+  padding: 8px 12px 12px;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+  border-top: 1px solid var(--border-subtle);
+}
+.thinking-panel.open .thinking-content {
+  display: block;
+}
+
+/* ===== Identity Confirm Card ===== */
+.identity-card {
+  margin: 10px 0;
+  padding: 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+.identity-card-title {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.identity-card-btns {
+  display: flex;
+  gap: 8px;
+}
+.identity-card-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.identity-card-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--brand-light);
+}
+.identity-card-btn.selected {
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-color: var(--accent);
+}
+
+/* ===== Chat message bubble alignment ===== */
+.msg-user {
+  display: flex;
+  justify-content: flex-end;
+}
+.msg-user .msg-body {
+  max-width: 80%;
+  background: var(--brand-light);
+  border-left: none;
+  border-radius: var(--radius-md) var(--radius-xs) var(--radius-md) var(--radius-md);
+}
+.msg-ai .msg-body {
+  max-width: 90%;
+}
+
+/* ===== Generation Files Tab ===== */
+.gen-file-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+.gen-file-item:hover {
+  background: var(--surface-base);
+}
+.gen-file-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: #F5F5F5;
+  color: var(--accent);
+  flex-shrink: 0;
+  font-size: 16px;
+}
+.gen-file-info {
+  flex: 1;
+  min-width: 0;
+}
+.gen-file-name {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.gen-file-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-input);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.gen-file-desc {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* ===== Result Tab ===== */
+.result-risk-item {
+  transition: background var(--duration-fast);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+.result-risk-item:hover {
+  background: var(--surface-base);
+}
+.result-risk-item .risk-icon-inline {
+  margin-right: 6px;
+}
+.law-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+.law-link:hover {
+  text-decoration: underline;
+}
+
+.result-sugg-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.result-sugg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.result-sugg-text {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.result-sugg-accept {
+  padding: 3px 10px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  background: var(--surface-elevated);
+  border: 1px solid var(--risk-safe);
+  color: var(--risk-safe);
+  white-space: nowrap;
+}
+.result-sugg-accept:hover {
+  background: var(--risk-safe-bg);
+}
+.result-sugg-accept.accepted {
+  background: var(--risk-safe-bg);
+  color: var(--risk-safe);
+  border-color: var(--risk-safe);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.result-sugg-ask {
+  padding: 3px 10px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  background: var(--surface-elevated);
+  border: 1px solid #6366F1;
+  color: #6366F1;
+  white-space: nowrap;
+  margin-left: 6px;
+}
+.result-sugg-ask:hover {
+  background: #EEF2FF;
+  border-color: #4F46E5;
+  color: #4F46E5;
+}
+
+.suggestion-card.accepted {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.result-actions-bar {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 8px;
+}
+.result-accept-all {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  background: var(--accent);
+  color: var(--text-inverse);
+  border: none;
+}
+.result-accept-all:hover {
+  opacity: 0.88;
+}
+
+.result-export-area {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-elevated);
+}
+.result-export-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration-fast);
+  background: var(--accent);
+  color: var(--text-inverse);
+  border: none;
+  text-align: center;
+}
+.result-export-btn:hover {
+  opacity: 0.88;
+}
+
+/* ===== App Layout visibility ===== */
+#appLayout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin-top: var(--header-h);
+  margin-left: 200px;
+  transition: margin-left 250ms var(--ease-out-expo);
+}
+#appLayout.hidden {
+  display: none;
+}
+#appLayout.sidebar-collapsed {
+  margin-left: 56px;
+}
+
+/* Chat messages fixed height */
+.chat-messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+/* ===== Home Section Title ===== */
+.home-section-title {
+  font-size: 13px;
+  color: #888;
+  font-weight: 500;
+  margin-bottom: 8px;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+  padding: 0 4px;
+}
+
+/* ===== Action Chips Container ===== */
+.home-action-chips {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+  justify-content: flex-start;
+}
+
+/* ===== Agent Grid ===== */
+.home-agent-grid {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: flex-start;
+}
+
+/* ===== Agent Card ===== */
+.home-agent-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-size: 13px;
+  color: #333;
+}
+.home-agent-card:hover {
+  border-color: #4A90D9;
+}
+.home-agent-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+</style>
+</head>
+<body>
+
+
+<!-- ===== HEADER ===== -->
+<header class="app-header" id="appHeader">
+  <div class="header-module">
+    <span class="module-label">开始</span>
+    <span class="module-badge">开始/专家模式</span>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" aria-label="通知">
+      <span><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5a1.5 1.5 0 0 0 3 0"/><path d="M2 10.5h10L10.5 7V5A3.5 3.5 0 0 0 7 1.5 3.5 3.5 0 0 0 3.5 5v2L2 10.5Z"/></svg></span>
+      <span class="notif-dot"></span>
+    </button>
+    <button class="user-btn" aria-label="用户菜单">
+      <div class="user-avatar">王</div>
+      <span class="user-name">王法务</span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo" id="navToggle" role="button" tabindex="0" aria-label="展开/收起侧边栏">
+    <img class="sidebar-logo-img" src="data:image/png;base64,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" alt="合律 HeLu" />
+    
+    
+  </div>
+  <nav class="sidebar-nav">
+    <button class="sidebar-item active" data-page="start">
+      <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="7"/><polyline points="9 4 9 9 6 11"/></svg></span>
+      <span class="sidebar-label">开始</span>
+    </button>
+    <div class="sidebar-section-title">
+      <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v3M9 15v-3"/><circle cx="9" cy="9" r="6"/><path d="M9 6a3 3 0 1 0 0 6"/></svg></span>
+      <span class="sidebar-label">智能</span>
+    </div>
+    <button class="sidebar-item" data-page="agents">
+      <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="11" height="11" rx="1.5" transform="rotate(45 9 9)"/><circle cx="9" cy="9" r="2"/><line x1="9" y1="6" x2="9" y2="3"/><line x1="9" y1="15" x2="9" y2="12"/></svg></span>
+      <span class="sidebar-label">智能体平台</span>
+    </button>
+    <button class="sidebar-item" data-page="mcp">
+      <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="2.5"/><path d="M4.5 12c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5"/><circle cx="4.5" cy="14" r="1.5"/><circle cx="13.5" cy="14" r="1.5"/></svg></span>
+      <span class="sidebar-label">MCP</span>
+    </button>
+    <button class="sidebar-item" data-page="history">
+      <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="7"/><polyline points="9 5 9 9 12 11"/><path d="M3.5 3.5 7 7"/></svg></span>
+      <span class="sidebar-label">历史记录</span>
+    </button>
+    <button class="sidebar-item" data-page="settings">
+      <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="2.5"/><path d="M9 1v2"/><path d="M9 15v2"/><path d="M14.3 3.7l-1.4 1.4"/><path d="M5.1 12.9l-1.4 1.4"/><path d="M17 9h-2"/><path d="M3 9H1"/><path d="M14.3 14.3l-1.4-1.4"/><path d="M5.1 5.1 3.7 3.7"/></svg></span>
+      <span class="sidebar-label">设置</span>
+      <span class="sidebar-sub-arrow"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3 2 7 6 3 10"/></svg></span>
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="sidebar-collapse-btn" id="sidebarToggle" aria-label="收起侧边栏">
+      <span class="sidebar-collapse-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 2 4 7 9 12"/></svg></span>
+      <span class="sidebar-collapse-label">收起菜单</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ===== APP LAYOUT ===== -->
+<div id="appLayout">
+<!-- ===== HOME PAGE ===== -->
+<div id="homePage" class="hidden">
+  <div class="home-hero">
+    <!-- Upload Zone -->
+    <div class="home-upload-zone" id="homeUploadZone" onclick="document.getElementById('fileInputElem').click()">
+      <div style="margin-bottom: 12px;">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 28V12"/><polyline points="14 18 20 12 26 18"/>
+          <path d="M8 28v4a4 4 0 004 4h16a4 4 0 004-4v-4"/>
+        </svg>
+      </div>
+      <div style="font-size:14px;font-weight:500;color:#333;margin-bottom:4px;">拖拽文件到此处或点击上传</div>
+      <div style="font-size:12px;color:#999;">支持 PDF、DOCX、XLSX、PPTX 格式，单文件最大 50MB</div>
+    </div>
+    <input type="file" id="fileInputElem" multiple accept=".pdf,.docx,.xlsx,.pptx,.doc,.xls,.ppt" style="display:none" onchange="handleHomeFiles(this.files)">
+
+    <!-- File List -->
+    <div class="home-file-list" id="homeFileList" style="display:none;"></div>
+
+    <!-- Quick Action Chips -->
+    <div class="home-section-title">常见业务场景</div>
+    <div class="home-action-chips">
+      <button class="action-chip" onclick="startScenario('compare')">两文件对比审查</button>
+      <button class="action-chip" onclick="startScenario('conflict')">多文件矛盾检测</button>
+      <button class="action-chip" onclick="startScenario('compliance')">合同条款合规扫描</button>
+      <button class="action-chip" onclick="startScenario('typo')">错別字与格式审查</button>
+      <button class="action-chip" onclick="startScenario('ad')">广告法合规审查</button>
+    </div>
+
+    <!-- Official Agents -->
+    <div class="home-section-title">官方智能体</div>
+    <div class="home-agent-grid">
+      <div class="home-agent-card" onclick="startAgent('regulation')">
+        <div class="home-agent-icon" style="background:#FFF3E0;color:#E65100;">🔶</div>
+        <span>制度合法性审查</span>
+      </div>
+      <div class="home-agent-card" onclick="startAgent('typo')">
+        <div class="home-agent-icon" style="background:#E8F5E9;color:#2E7D32;">🔍</div>
+        <span>错别字审查</span>
+      </div>
+      <div class="home-agent-card" onclick="startAgent('contract')">
+        <div class="home-agent-icon" style="background:#E3F2FD;color:#1565C0;">📄</div>
+        <span>合同合法性审查</span>
+      </div>
+      <div class="home-agent-card" onclick="startAgent('ad')">
+        <div class="home-agent-icon" style="background:#E3F2FD;color:#1565C0;">📁</div>
+        <span>广告合规审查</span>
+      </div>
+      <div class="home-agent-card" onclick="startAgent('draft')">
+        <div class="home-agent-icon" style="background:#FFEBEE;color:#C62828;">💬</div>
+        <span>多轮对话起草</span>
+      </div>
+      <div class="home-agent-card" onclick="startAgent('law')">
+        <div class="home-agent-icon" style="background:#E0F7FA;color:#00838F;">⬆️</div>
+        <span>法条更新助手</span>
+      </div>
+      <div class="home-agent-card" onclick="startAgent('more')">
+        <div class="home-agent-icon" style="background:#F5F5F5;color:#757575;">⊞</div>
+        <span>更多</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MAIN WORKSPACE ===== -->
+<main class="main-workspace" id="mainWorkspace">
+
+  <!-- LEFT: Smart Panel -->
+  <aside class="file-panel">
+  </aside>
+
+  <!-- CENTER: Chat Panel -->
+  <section class="chat-panel">
+    <div class="chat-top">
+      <div class="chat-heading">与 合律Lex join的对话</div>
+    </div>
+<div class="chat-messages-area" id="chatMessages">
+      <!-- User message -->
+      <div class="msg msg-user">
+        <div class="msg-body">
+          <div class="msg-meta">
+            <span class="msg-avatar">王</span>
+            <span>王法务</span>
+          </div>
+          这份修改后的合同跟原版有什么区别？对我方更不利了吗？且我这份合同是否合规是否有错别字是否符合广告法
+        </div>
+      </div>
+      <!-- AI message -->
+      <div class="msg msg-ai">
+        <div class="msg-body">
+          <div class="msg-meta">
+            <span class="msg-avatar">L</span>
+            <span>LexForge Agent</span>
+          </div>
+          收到。正在对主合同与两份补充协议进行条款级对比，重点提取付款条款和违约责任。
+        </div>
+      </div>
+      <!-- Identity selection in chat -->
+      <div class="chat-identity-section" id="chatIdentitySection" style="padding: 16px; background: var(--surface-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="font-size: var(--text-sm); font-weight: var(--fw-semibold); color: var(--text-primary); margin-bottom: 8px;">在开始审查前，请确认您的身份角色：</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="identity-card-btn" onclick="selectIdentity('buyer')">采购方法务</button>
+          <button class="identity-card-btn" onclick="selectIdentity('supplier')">供应商法务</button>
+        </div>
+      </div>
+      <!-- Expert mode preview -->
+      <div class="progress-block" id="expertPreview" style="display:none">
+        <div class="progress-header-row">
+          <span class="progress-label">专家模式 · 执行计划 <span style="color: var(--text-tertiary); font-weight: var(--fw-normal); margin-left: 4px;">4个步骤</span></span>
+          <span class="progress-eta" style="visibility:hidden">预计剩余 2 分 15 秒</span>
+        </div>
+        <div class="progress-track" style="margin-top: 8px; margin-bottom: 12px;">
+          <div class="progress-fill" id="expertOverallProgress" style="width:0%; background: #FFD60A;"></div>
+        </div>
+        <div class="stage-list">
+          <div class="stage-row">
+            <span class="stage-dot pending"></span>
+            <span class="stage-name">合同合法性审查 Agent</span>
+            <span class="stage-pct">MCP: diff-engine, legal-matcher</span>
+          </div>
+          <div class="stage-detail" id="stageDetail0" style="display:none;margin:4px 0 8px 24px;padding:8px 12px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;"></div>
+          <div class="stage-row">
+            <span class="stage-dot pending"></span>
+            <span class="stage-name">错别字审查 Agent</span>
+            <span class="stage-pct">MCP: risk-scorer, regulation-checker</span>
+          </div>
+          <div class="stage-detail" id="stageDetail1" style="display:none;margin:4px 0 8px 24px;padding:8px 12px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;"></div>
+          <div class="stage-row">
+            <span class="stage-dot pending"></span>
+            <span class="stage-name">广告合规审查 Agent</span>
+            <span class="stage-pct">MCP: report-builder, formatter</span>
+          </div>
+          <div class="stage-detail" id="stageDetail2" style="display:none;margin:4px 0 8px 24px;padding:8px 12px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;"></div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
+          <div style="font-size: var(--text-2xs); color: var(--text-tertiary); margin-bottom: 8px;">
+            系统将按此计划执行，您可取消不必要的任务步骤
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="action-chip" onclick="openExpert()">查看完整计划</button>
+            <button class="action-chip" style="background: var(--surface-input); color: var(--accent); border-color: var(--accent);" onclick="executePlan()">确认执行</button>
+          </div>
+        </div>
+      </div>
+      <!-- Result summary -->
+      <div class="result-block" style="display:none">
+        <div class="result-top">
+          <span class="result-title">分析完成</span>
+          <button class="result-expand-btn" id="toggleReport">查看完整结果 →</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value color-purple">5</div>
+            <div class="stat-label">修改建议</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value color-red">6</div>
+            <div class="stat-label">总风险</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value color-darkred">2</div>
+            <div class="stat-label">高风险</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value color-orange">1</div>
+            <div class="stat-label">中风险</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value color-green">3</div>
+            <div class="stat-label">低风险</div>
+          </div>
+        </div>
+        <div class="findings-list">
+          <div class="finding-row critical">
+            <span class="finding-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1 1 11h10L6 1Z"/><line x1="6" y1="5" x2="6" y2="7.5"/><circle cx="6" cy="9" r="0.4" fill="currentColor" stroke="none"/></svg></span>
+            <span class="finding-text">高风险：违约金比例不一致（主合同5% vs 补充协议8%）</span>
+          </div>
+          <div class="finding-row critical">
+            <span class="finding-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1 1 11h10L6 1Z"/><line x1="6" y1="5" x2="6" y2="7.5"/><circle cx="6" cy="9" r="0.4" fill="currentColor" stroke="none"/></svg></span>
+            <span class="finding-text">高风险：争议解决条款表述差异（北京仲裁 vs 上海法院）</span>
+          </div>
+          <div class="finding-row warning">
+            <span class="finding-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1 1 11h10L6 1Z"/><line x1="6" y1="5" x2="6" y2="7.5"/><circle cx="6" cy="9" r="0.4" fill="currentColor" stroke="none"/></svg></span>
+            <span class="finding-text">中风险：付款期限延长30天（30天 → 60天）</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WPS Viewer -->
+    <div class="wps-viewer" id="wpsViewer">
+      <div class="wps-viewer-toolbar">
+        <span class="wps-viewer-filename" id="wpsFileName">采购合同_批注版.docx</span>
+        <button class="wps-close-btn" id="wpsCloseBtn" title="关闭">&times;</button>
+      </div>
+      <div class="wps-viewer-content" id="wpsContent">
+      </div>
+    </div>
+
+    <div class="chat-empty" id="chatEmpty">
+      <div class="chat-empty-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="8" width="24" height="20" rx="2"/>
+          <path d="M6 14h24"/>
+          <circle cx="18" cy="22" r="3"/>
+          <path d="M14 6v4M22 6v4"/>
+        </svg>
+      </div>
+      <div class="chat-empty-text">
+        输入您的问题，开始审查
+      </div>
+      <div class="chat-empty-actions" id="chatIdentityActions" style="display:none">
+        <button class="identity-card-btn" onclick="selectIdentity('buyer')">采购方法务</button>
+        <button class="identity-card-btn" onclick="selectIdentity('supplier')">供应商法务</button>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="input-row">
+        <textarea class="chat-input-field" id="chatInput" placeholder="公司新出了智能考勤制度，我是外勤销售，想查查这制度合不合法？" rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" aria-label="发送"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="2" x2="8" y2="14"/><polyline points="4 6 8 2 12 6"/></svg></button>
+      </div>
+      <div class="input-actions-row">
+
+        <div class="toggle-group">
+          <label class="toggle-switch">
+            <input type="checkbox" class="toggle-input" id="expertTgl" checked>
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label">专家模式</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Report Panel -->
+  <aside class="report-panel" id="reportPanel">
+    <div class="report-tabs" id="reportTabs">
+      <button class="report-tab-btn active" data-tab="taskList">
+        <span class="report-tab-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="4" height="4" rx="0.5"/><rect x="9" y="3" width="4" height="4" rx="0.5"/><rect x="3" y="9" width="4" height="4" rx="0.5"/><rect x="9" y="9" width="4" height="4" rx="0.5"/></svg></span>
+        任务清单
+      </button>
+      <button class="report-tab-btn" data-tab="taskResult">
+        <span class="report-tab-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v10l6-5-6-5z"/></svg></span>
+        任务成果
+      </button>
+      <button class="report-tab-btn" data-tab="genFiles">
+        <span class="report-tab-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="14" rx="1.5"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="9" y2="11"/></svg></span>
+        生成文件
+      </button>
+    </div>
+
+    <!-- Tab 1: 任务清单 -->
+    <div class="report-tab-content active" id="tabTaskList">
+      <div class="task-step-card" data-step="1" id="step1Card" >
+        <div class="task-step-icon done">&#10003;</div>
+        <div class="task-step-body">
+          <div class="task-step-title">步骤1 解析文件</div>
+          <div class="task-step-desc">已完成合同文件的结构化解析，提取关键条款信息</div>
+          <div class="task-step-thinking" id="step1Thinking" style="display:none;">
+            <div style="padding:8px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);white-space:pre-wrap;line-height:1.5;max-height:300px;overflow-y:auto;">解析文件"采购合同.docx"...
+检测文件格式：DOCX（Office Open XML）
+提取文档结构：标题层2级，正文段落47段，表格3个
+识别关键条款区域：
+- 付款条款：第4条（共3个子条款）
+- 违约责任：第8条（共4个子条款）
+- 保密条款：第7条（共2个子条款）
+- 争议解决：第9条（共1个子条款）
+- 合同期限：第2条
+- 双方权利义务：第3条、第5条
+结构解析完成，识别出12个关键条款节点。</div>
+          </div>
+        </div>
+      </div>
+      <div class="task-step-card" data-step="2" id="step2Card" >
+        <div class="task-step-icon waiting" id="step2Icon">&#9203;</div>
+        <div class="task-step-body">
+          <div class="task-step-title">步骤2 识别用户身份</div>
+          <div class="task-step-desc">等待确认您的身份角色，以便确定审查立场</div>
+          <div class="task-step-thinking" id="step2Thinking" style="display:none;">
+            <div style="padding:8px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);white-space:pre-wrap;line-height:1.5;max-height:300px;overflow-y:auto;">当前需确定审查主体身份，以匹配对应的审查模板和风险侧重点：
+- 采购方法务：重点关注价格合理性、付款条件、违约赔偿上限、交货期限保障
+- 供应商法务：重点关注收款保障、责任限制、知识产权归属、验收标准
+
+身份确认后将自动切换审查策略矩阵。</div>
+          </div>
+        </div>
+      </div>
+      <div class="task-step-card" data-step="3" id="step3Card" >
+        <div class="task-step-icon running" id="step3Icon">&#128260;</div>
+        <div class="task-step-body">
+          <div class="task-step-title">步骤3 专家模式执行</div>
+          <div class="task-step-desc">基于采购方法务立场，逐条审查合同条款的合规性与风险</div>
+          <div class="task-step-thinking" id="step3Thinking" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="task-step-card" data-step="4" id="step4Card" >
+        <div class="task-step-icon pending" id="step4Icon">&#9711;</div>
+        <div class="task-step-body">
+          <div class="task-step-title">步骤4 输出成果</div>
+          <div class="task-step-desc">汇总审查结果，生成结构化的审查报告与修改建议</div>
+          <div class="task-step-thinking" id="step4Thinking" style="display:none;">
+            <div style="padding:8px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);white-space:pre-wrap;line-height:1.5;max-height:300px;overflow-y:auto;">汇总审查成果，生成以下文件：
+1. 采购合同_批注版.docx — 原文基础上添加批注标记
+2. 采购合同_修改版.docx — 修改后的合同版本
+3. 审查报告摘要 — 3项差异、6项风险、3项修改建议、0项合规问题
+输出格式已适配采购方法务立场。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: 任务成果 -->
+    <div class="report-tab-content" id="tabTaskResult">
+      <!-- Contract Comparison Report -->
+      <div class="report-sect" style="padding: 16px;">
+        <div style="margin-bottom: 12px; position: sticky; top: 0; z-index: 999; background: #fff; padding-top: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+          <div style="font-size: 16px; font-weight: 700; color: #1A1A1A; margin-bottom: 4px; text-align: center;">完整结果</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #999; border-bottom: 1px solid #E5E5E5; padding-bottom: 10px;">
+            <span>生成: 15:35:22&nbsp;&nbsp;&nbsp;&nbsp;ID: REP-20260527-001</span>
+            <span style="display: flex; align-items: center; gap: 6px;">文件名称 <select id="fileFilter" onchange="filterContracts()" style="border: 1px solid #D5D5D5; border-radius: 6px; padding: 3px 8px; font-size: 12px; color: #333; background: #fff;"><option selected value="all">全部文件</option><option value="purchase">采购合同</option><option value="software">软件实施合同</option></select></span>
+          </div>
+        </div>
+        <div class="sect-heading" style="font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 10px;">分析总结</div>
+        <div style="font-size: 12px; color: #5A5A5A; line-height: 1.6; margin-bottom: 10px;">您上传的2个文件，共涉及2个智能体调用，共审查出修改建议5条，总风险6条，其中高风险2条，中风险1条，低风险3条</div>
+      </div>
+
+      
+
+      <!-- Suggestions Section -->
+      <div class="report-sect" style="padding: 16px;">
+        <div class="sect-heading" style="font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#C4B89A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="12" height="10" rx="1"/><polyline points="6 2 6 5"/><polyline points="12 2 12 5"/><line x1="6" y1="9" x2="12" y2="9"/><line x1="6" y1="12" x2="10" y2="12"/></svg>
+          合同合法性审查结果
+        </div>
+
+        <!-- WPS Preview Panel -->
+        <div id="wpsPreviewPanel" style="display:none; background: #F5F5F5; border: 1px solid #E5E5E5; border-radius: 12px; overflow: hidden; margin-bottom: 16px; position: relative;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #FAFAFA; border-bottom: 1px solid #E5E5E5;">
+            <span style="font-size: 13px; font-weight: 600; color: #1A1A1A;" id="wpsPreviewTitle">合同条款原文预览</span>
+            <button onclick="closeWpsPreview()" style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid #D5D5D5; background: #fff; font-size: 14px; color: #999; cursor: pointer; line-height: 22px; text-align: center; padding: 0;">×</button>
+          </div>
+          <div id="wpsPreviewContent" style="max-height: 280px; overflow-y: auto; padding: 16px 20px; font-family: 'PingFang SC', 'Microsoft YaHei', serif;">
+            <div style="background: #fff; border: 1px solid #E5E5E5; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              <div style="display: flex; gap: 16px;">
+                <div style="flex-shrink:0; width:28px; text-align:right; font-size:12px; color: #999; line-height:1.8; font-family:monospace;"></div>
+                <div style="flex:1; font-size:14px; color:#1A1A1A; line-height:1.8; white-space:pre-wrap;" id="wpsPreviewText"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsible Card 1: 采购合同 -->
+        <div class="sugg-collapse-card" style="background: #fff; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); padding: 16px; margin-bottom: 16px; border: 1px solid #F0F0F0;">
+          <div class="sugg-collapse-header" onclick="toggleCollapseCard(this)" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 12px;">
+            <span style="font-size: 14px; font-weight: 600; color: #1a1a2e; padding-left: 10px; border-left: 3px solid #C4B89A;">文件名：采购合同</span>
+            <span class="collapse-arrow" style="font-size: 12px; color: #999; transition: transform 0.3s ease;">▼</span>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <div style="font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 6px;">审查结果概览</div>
+            <div style="font-size: 12px; color: #5A5A5A; line-height: 1.6; margin-bottom: 12px;">您上传的文件，合同合法性审查智能体，共审查出修改建议5条，总风险6条，其中高风险2条，中风险1条，低风险2条</div>
+            <div style="font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 8px;">审查结果详情</div>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 12px;">
+            <button class="result-accept-all" onclick="acceptAllSuggestions()" style="padding: 7px 16px; border-radius: 8px; background: #C4B89A; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">一键接受所有修订</button>
+            <button class="export-pdf-btn" onclick="exportResultPDF()" style="padding: 7px 16px; border-radius: 8px; background: #fff; color: #C4B89A; border: 1px solid #C4B89A; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">生成修订文件</button>
+          </div>
+          <div class="sugg-collapse-body" style="max-height: 2000px; overflow: hidden; transition: max-height 0.3s ease;">
+
+        <!-- Suggestion 2 -->
+        <div class="suggestion-card" data-sugg="2" style="background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; padding: 14px; margin-bottom: 10px; transition: all 0.15s;">
+          <span style="display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; background: #FEF3C7; color: #D97706; margin-bottom: 8px;">中风险</span>
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width: 18px; height: 18px; border: 2px solid #D5D5D5; border-radius: 4px; flex-shrink: 0; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: flex; align-items: center; justify-content: center;"></span>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1A1A1A;">风险内容：付款期限延长30天（30天→60天）</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button class="result-sugg-accept" onclick="acceptSuggestion(this)" style="padding: 4px 12px; border-radius: 6px; background: #fff; border: 1px solid #059669; color: #059669; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;">待接受</button>
+                <button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp('关于付款期限从30天延长到60天，请详细分析这对采购方的法律风险、资金占用影响及谈判策略建议');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 6px;">
+                <strong>建议修改内容：</strong>建议将付款期限恢复为30天，或增加逾期利息补偿条款
+              </div>
+              <div style="display: flex; gap: 16px; margin-bottom: 4px;">
+                <span style="font-size: 12px; color: #999;">修改位置：<strong style="color: #5A5A5A;">第7.1条 保密条款</strong></span>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;">
+                <strong>原文内容：</strong><span style="color: #2563EB; text-decoration: underline; cursor: pointer;" onclick="openWpsPreview('第7.1条 保密条款', '双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为永久。')">双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为永久</span>
+              </div>
+              <div style="font-size: 12px; color: #C4B89A;">
+                引用法条：<a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color: #C4B89A; text-decoration: none; font-weight: 500;">《民法典》第501条</a> — 当事人在订立合同过程中知悉的商业秘密，无论合同是否成立，不得泄露或者不正当地使用。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion 3 -->
+        <div class="suggestion-card" data-sugg="3" style="background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; padding: 14px; margin-bottom: 10px; transition: all 0.15s;">
+          <span style="display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; background: #FEE2E2; color: #DC2626; margin-bottom: 8px;">高风险</span>
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width: 18px; height: 18px; border: 2px solid #D5D5D5; border-radius: 4px; flex-shrink: 0; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: flex; align-items: center; justify-content: center;"></span>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1A1A1A;">风险内容：争议解决条款表述差异（北京仲裁 vs 上海法院）</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button class="result-sugg-accept" onclick="acceptSuggestion(this)" style="padding: 4px 12px; border-radius: 6px; background: #fff; border: 1px solid #059669; color: #059669; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;">待接受</button>
+                <button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp('关于争议解决条款，请详细分析北京仲裁和上海法院管辖各自的利弊，以及对我方的影响');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 6px;">
+                <strong>建议修改内容：</strong>建议明确争议解决机构为北京仲裁委员会，统一争议解决方式和管辖机构
+              </div>
+              <div style="display: flex; gap: 16px; margin-bottom: 4px;">
+                <span style="font-size: 12px; color: #999;">修改位置：<strong style="color: #5A5A5A;">第9.3条 争议解决</strong></span>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;">
+                <strong>原文内容：</strong><span style="color: #2563EB; text-decoration: underline; cursor: pointer;" onclick="openWpsPreview('第9.3条 争议解决', '因本合同引起的争议，双方应协商解决，协商不成的提交上海法院诉讼解决。')">因本合同引起的争议，双方应协商解决，协商不成的提交上海法院诉讼解决</span>
+              </div>
+              <div style="font-size: 12px; color: #C4B89A;">
+                引用法条：<a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color: #C4B89A; text-decoration: none; font-weight: 500;">《民法典》第470条</a> — 合同的内容由当事人约定，一般包括当事人的姓名或者名称和住所、标的、数量、质量等。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion 4 -->
+        <div class="suggestion-card" data-sugg="4" style="background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; padding: 14px; margin-bottom: 10px; transition: all 0.15s;">
+          <span style="display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; background: #FEE2E2; color: #DC2626; margin-bottom: 8px;">高风险</span>
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width: 18px; height: 18px; border: 2px solid #D5D5D5; border-radius: 4px; flex-shrink: 0; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: flex; align-items: center; justify-content: center;"></span>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1A1A1A;">风险内容：违约金比例不一致（采购方10% vs 供应方20%）</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button class="result-sugg-accept" onclick="acceptSuggestion(this)" style="padding: 4px 12px; border-radius: 6px; background: #fff; border: 1px solid #059669; color: #059669; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;">待接受</button>
+                <button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp('关于违约金比例不一致的问题，请帮我起草一份双方对等的违约金条款范本');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 6px;">
+                <strong>建议修改内容：</strong>建议将双方违约金比例统一为合同总金额的10%，避免权利义务不对等
+              </div>
+              <div style="display: flex; gap: 16px; margin-bottom: 4px;">
+                <span style="font-size: 12px; color: #999;">修改位置：<strong style="color: #5A5A5A;">第11.2条 违约责任</strong></span>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;">
+                <strong>原文内容：</strong><span style="color: #2563EB; text-decoration: underline; cursor: pointer;" onclick="openWpsPreview('第11.2条 违约责任', '采购方逾期付款按日万分之五支付违约金，供应方逾期交货按合同总金额20%支付违约金。')">采购方逾期付款按日万分之五支付违约金，供应方逾期交货按合同总金额20%支付违约金</span>
+              </div>
+              <div style="font-size: 12px; color: #C4B89A;">
+                引用法条：<a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color: #C4B89A; text-decoration: none; font-weight: 500;">《民法典》第585条</a> — 约定的违约金过分高于造成的损失的，当事人可以请求人民法院或者仲裁机构予以适当减少。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion 5 -->
+        <div class="suggestion-card" data-sugg="5" style="background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; padding: 14px; margin-bottom: 10px; transition: all 0.15s;">
+          <span style="display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; background: #D1FAE5; color: #059669; margin-bottom: 8px;">低风险</span>
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width: 18px; height: 18px; border: 2px solid #D5D5D5; border-radius: 4px; flex-shrink: 0; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: flex; align-items: center; justify-content: center;"></span>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1A1A1A;">风险内容：合同签署日期未填写</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button class="result-sugg-accept" onclick="acceptSuggestion(this)" style="padding: 4px 12px; border-radius: 6px; background: #fff; border: 1px solid #059669; color: #059669; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;">待接受</button>
+                <button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp('合同签署日期缺失会带来哪些法律风险？请详细说明可能的影响');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 6px;">
+                <strong>建议修改内容：</strong>建议在合同末尾补充双方签署日期，确保合同生效时间明确
+              </div>
+              <div style="display: flex; gap: 16px; margin-bottom: 4px;">
+                <span style="font-size: 12px; color: #999;">修改位置：<strong style="color: #5A5A5A;">第15条 签署页</strong></span>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;">
+                <strong>原文内容：</strong><span style="color: #2563EB; text-decoration: underline; cursor: pointer;" onclick="openWpsPreview('第15条 签署页', '甲方（盖章）：________  乙方（盖章）：________  日期：____年____月____日')">甲方（盖章）：________  乙方（盖章）：________  日期：____年____月____日</span>
+              </div>
+              <div style="font-size: 12px; color: #C4B89A;">
+                引用法条：<a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color: #C4B89A; text-decoration: none; font-weight: 500;">《民法典》第490条</a> — 当事人采用合同书形式订立合同的，自当事人均签名、盖章或者按指印时合同成立。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion 6 -->
+        <div class="suggestion-card" data-sugg="6" style="background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; padding: 14px; margin-bottom: 10px; transition: all 0.15s;">
+          <span style="display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; background: #D1FAE5; color: #059669; margin-bottom: 8px;">低风险</span>
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width: 18px; height: 18px; border: 2px solid #D5D5D5; border-radius: 4px; flex-shrink: 0; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: flex; align-items: center; justify-content: center;"></span>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1A1A1A;">风险内容：保密条款措辞过于宽泛</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button class="result-sugg-accept" onclick="acceptSuggestion(this)" style="padding: 4px 12px; border-radius: 6px; background: #fff; border: 1px solid #059669; color: #059669; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;">待接受</button>
+                <button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp('保密期限约定为\"永久\"在法律上是否有效？请给出具体的修改建议和范本');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 6px;">
+                <strong>建议修改内容：</strong>建议明确保密信息的具体范围和保密期限，增加例外情形说明
+              </div>
+              <div style="display: flex; gap: 16px; margin-bottom: 4px;">
+                <span style="font-size: 12px; color: #999;">修改位置：<strong style="color: #5A5A5A;">第7.1条 保密条款</strong></span>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;">
+                <strong>原文内容：</strong><span style="color: #2563EB; text-decoration: underline; cursor: pointer;" onclick="openWpsPreview('第7.1条 保密条款', '双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为永久。')">双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为永久</span>
+              </div>
+              <div style="font-size: 12px; color: #C4B89A;">
+                引用法条：<a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color: #C4B89A; text-decoration: none; font-weight: 500;">《民法典》第501条</a> — 当事人在订立合同过程中知悉的商业秘密，无论合同是否成立，不得泄露或者不正当地使用。
+              </div>
+            </div>
+          </div>
+        </div>
+
+          </div><!-- end collapses body for 采购合同 -->
+        </div><!-- end collapse card 1 -->
+
+        <!-- Collapsible Card 2: 软件实施合同 -->
+        <div class="sugg-collapse-card" style="background: #fff; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); padding: 16px; margin-bottom: 16px; border: 1px solid #F0F0F0;">
+          <div class="sugg-collapse-header" onclick="toggleCollapseCard(this)" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 12px;">
+            <span style="font-size: 14px; font-weight: 600; color: #1a1a2e; padding-left: 10px; border-left: 3px solid #C4B89A;">文件名：软件实施合同</span>
+            <span class="collapse-arrow" style="font-size: 12px; color: #999; transition: transform 0.3s ease;">▼</span>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 12px;">
+            <button class="result-accept-all" onclick="acceptAllSuggestions()" style="padding: 7px 16px; border-radius: 8px; background: #C4B89A; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">一键接受所有修订</button>
+            <button class="export-pdf-btn" onclick="exportResultPDF()" style="padding: 7px 16px; border-radius: 8px; background: #fff; color: #C4B89A; border: 1px solid #C4B89A; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">生成修订文件</button>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <div style="font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 6px;">审查结果概览</div>
+            <div style="font-size: 12px; color: #5A5A5A; line-height: 1.6; margin-bottom: 12px;">您上传的文件，合同合法性审查智能体，共审查出修改建议1条，总风险1条，其中低风险1条</div>
+            <div style="font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 8px;">审查结果详情</div>
+          </div>
+          <div class="sugg-collapse-body" style="max-height: 2000px; overflow: hidden; transition: max-height 0.3s ease;">
+
+        <!-- Suggestion 4 -->
+        <div class="suggestion-card" data-sugg="4" style="background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; padding: 14px; margin-bottom: 10px; transition: all 0.15s;">
+          <span style="display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; background: #FEF3C7; color: #D97706; margin-bottom: 8px;">中风险</span>
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width: 18px; height: 18px; border: 2px solid #D5D5D5; border-radius: 4px; flex-shrink: 0; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: flex; align-items: center; justify-content: center;"></span>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1A1A1A;">风险内容：验收标准未明确量化指标</span>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button class="result-sugg-accept" onclick="acceptSuggestion(this)" style="padding: 4px 12px; border-radius: 6px; background: #fff; border: 1px solid #059669; color: #059669; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;">待接受</button>
+                <button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp('关于验收标准未量化的问题，请帮我起草一份包含具体测试指标和缺陷修复时限的验收条款');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 6px;">
+                <strong>建议修改内容：</strong>建议将验收标准改为明确的量化指标，规定测试用例通过率和缺陷修复时限
+              </div>
+              <div style="display: flex; gap: 16px; margin-bottom: 4px;">
+                <span style="font-size: 12px; color: #999;">修改位置：<strong style="color: #5A5A5A;">第3.1条 验收标准</strong></span>
+              </div>
+              <div style="font-size: 12px; color: #5A5A5A; margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px;">
+                <strong>原文内容：</strong><span style="color: #2563EB; text-decoration: underline; cursor: pointer;" onclick="openWpsPreview('第3.1条 验收标准', '软件交付后，甲方应在10个工作日内完成验收。验收标准为符合甲方要求。')">软件交付后，甲方应在10个工作日内完成验收。验收标准为符合甲方要求。</span>
+              </div>
+              <div style="font-size: 12px; color: #C4B89A;">
+                引用法条：<a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color: #C4B89A; text-decoration: none; font-weight: 500;">《民法典》第470条</a> — 合同的内容由当事人约定，一般包括当事人的姓名或者名称和住所、标的、数量、质量等。
+              </div>
+            </div>
+          </div>
+        </div>
+
+          </div><!-- end collapse body for 软件实施 -->
+        </div><!-- end collapse card 2 -->
+
+      </div>
+    </div>
+
+    <!-- Tab 3: 生成文件 -->
+    <div class="report-tab-content" id="tabGenFiles">
+      <div class="gen-file-item" data-file="contract2" onclick="openWpsViewer('contract2')">
+        <div class="gen-file-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="12" height="16" rx="1"/><line x1="7" y1="6" x2="13" y2="6"/><line x1="7" y1="10" x2="13" y2="10"/><line x1="7" y1="14" x2="10" y2="14"/></svg>
+        </div>
+        <div class="gen-file-info">
+          <div class="gen-file-name">采购合同_合同合法性审查_修订版.docx</div>
+          <span class="gen-file-tag">创建时间 2026-06-02 15:35</span>
+        </div>
+      </div>
+      <div class="gen-file-item" data-file="annotated" onclick="openWpsViewer('annotated')">
+        <div class="gen-file-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="12" height="16" rx="1"/><line x1="7" y1="6" x2="13" y2="6"/><line x1="7" y1="10" x2="13" y2="10"/><line x1="7" y1="14" x2="10" y2="14"/></svg>
+        </div>
+        <div class="gen-file-info">
+          <div class="gen-file-name">采购合同_合同合法性审查_批注版.docx</div>
+          <span class="gen-file-tag">创建时间 2026-06-01 18:30</span>
+          <div class="gen-file-desc">根据审查结果生成的修改建议版本，打开Word后可逐条查看和接受修订</div>
+        </div>
+      </div>
+      <div class="gen-file-item" data-file="contract1" onclick="openWpsViewer('contract1')">
+        <div class="gen-file-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="12" height="16" rx="1"/><line x1="7" y1="6" x2="13" y2="6"/><line x1="7" y1="10" x2="13" y2="10"/><line x1="7" y1="14" x2="10" y2="14"/></svg>
+        </div>
+        <div class="gen-file-info">
+          <div class="gen-file-name">采购合同.docx</div>
+          <span class="gen-file-tag">创建时间 2026-06-02 15:35</span>
+        </div>
+      </div>
+
+      </div>
+  </aside>
+
+</main>
+
+<!-- ===== EXPERT PANEL ===== -->
+<aside class="expert-panel" id="expertPanel">
+  <div class="expert-top">
+    <div class="expert-heading">专家模式 · 执行计划</div>
+    <div class="expert-desc">预览 AI 执行计划，可取消不必要的任务步骤</div>
+    <div class="progress-track" style="margin-top: 12px; margin-bottom: 16px;">
+      <div class="progress-fill" id="expertPanelProgress" style="width:0%; background: #FFD60A;"></div>
+    </div>
+  </div>
+  <div class="expert-body">
+    <div class="plan-block">
+      <div class="plan-row-top">
+        <span class="plan-check checked"></span>
+        <span class="plan-agent-name">合同合法性审查 Agent</span>
+      </div>
+      <div class="plan-detail">
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">输入</span> 违约责任条款、付款条款
+        </div>
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">输出</span> 差异分析结果
+        </div>
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">MCP</span> diff-engine, legal-matcher
+        </div>
+      </div>
+    </div>
+    <div class="plan-block">
+      <div class="plan-row-top">
+        <span class="plan-check checked"></span>
+        <span class="plan-agent-name">错别字审查 Agent</span>
+      </div>
+      <div class="plan-detail">
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">输入</span> 差异条款、法规库
+        </div>
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">输出</span> 风险矩阵
+        </div>
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">MCP</span> risk-scorer, regulation-checker
+        </div>
+      </div>
+    </div>
+    <div class="plan-block">
+      <div class="plan-row-top">
+        <span class="plan-check checked"></span>
+        <span class="plan-agent-name">广告合规审查 Agent</span>
+      </div>
+      <div class="plan-detail">
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">输入</span> 所有分析结果
+        </div>
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">输出</span> 结构化报告
+        </div>
+        <div class="plan-detail-row">
+          <span class="plan-detail-label">MCP</span> report-builder, formatter
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="expert-footer">
+    <button class="expert-btn confirm" id="confirmPlan">确认执行</button>
+    <button class="expert-btn cancel" id="cancelPlan">取消</button>
+  </div>
+</aside>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Sidebar Toggle ──
+  var sidebar = document.getElementById('sidebar');
+  var mainWorkspace = document.getElementById('mainWorkspace');
+  var appHeader = document.getElementById('appHeader');
+  var homePage = null; // homePage removed - workspace only
+  var appLayout = document.getElementById('appLayout');
+  var sidebarToggle = document.getElementById('sidebarToggle');
+  var navToggle = document.getElementById('navToggle');
+  var collapsed = false;
+
+  function applySidebarState(coll) {
+    if (coll) {
+      sidebar.classList.add('collapsed');
+      if (mainWorkspace) mainWorkspace.classList.add('sidebar-collapsed');
+      // homePage removed
+      if (appLayout) appLayout.classList.add('sidebar-collapsed');
+      appHeader.classList.add('sidebar-collapsed');
+      sidebarToggle.querySelector('.sidebar-collapse-label').textContent = '展开菜单';
+    } else {
+      sidebar.classList.remove('collapsed');
+      if (mainWorkspace) mainWorkspace.classList.remove('sidebar-collapsed');
+      // homePage removed
+      if (appLayout) appLayout.classList.remove('sidebar-collapsed');
+      appHeader.classList.remove('sidebar-collapsed');
+      sidebarToggle.querySelector('.sidebar-collapse-label').textContent = '收起菜单';
+    }
+  }
+
+  var savedState = localStorage.getItem('sidebar-collapsed');
+  collapsed = savedState === 'true';
+  applySidebarState(collapsed);
+
+  sidebarToggle.addEventListener('click', function() {
+    collapsed = !collapsed;
+    applySidebarState(collapsed);
+    localStorage.setItem('sidebar-collapsed', collapsed);
+  });
+  navToggle.addEventListener('click', function() {
+    collapsed = !collapsed;
+    applySidebarState(collapsed);
+    localStorage.setItem('sidebar-collapsed', collapsed);
+  });
+
+  // Sidebar nav
+  document.querySelectorAll('.sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.sidebar-item').forEach(function(si) { si.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      collapsed = !collapsed;
+      applySidebarState(collapsed);
+      localStorage.setItem('sidebar-collapsed', collapsed);
+    }
+  });
+
+
+  // ── Report Tabs ──
+  document.querySelectorAll('.report-tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.report-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      document.querySelectorAll('.report-tab-content').forEach(function(c) { c.classList.remove('active'); });
+      var tabId = 'tab' + this.getAttribute('data-tab').charAt(0).toUpperCase() + this.getAttribute('data-tab').slice(1);
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+
+  // Function to switch to a specific tab
+  function switchToTab(tabName) {
+    document.querySelectorAll('.report-tab-btn').forEach(function(b) {
+      b.classList.remove('active');
+      if (b.getAttribute('data-tab') === tabName) b.classList.add('active');
+    });
+    document.querySelectorAll('.report-tab-content').forEach(function(c) { c.classList.remove('active'); });
+    var tabId = 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+    var el = document.getElementById(tabId);
+    if (el) el.classList.add('active');
+  }
+
+  // ── Identity Card in Chat ──
+  function showIdentityCard() {
+    var chatMessages = document.getElementById('chatMessages');
+    var cardDiv = document.createElement('div');
+    cardDiv.className = 'msg msg-ai';
+    cardDiv.innerHTML = '<div class="msg-body">' +
+      '<div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>' +
+      '在开始审查前，请确认您的身份角色：' +
+      '<div class="identity-card">' +
+      '<div class="identity-card-title">请选择您的身份</div>' +
+      '<div class="identity-card-btns">' +
+      '<button class="identity-card-btn" onclick="selectIdentity(\"buyer\")">采购方法务</button>' +
+      '<button class="identity-card-btn" onclick="selectIdentity(\"supplier\")">供应商法务</button>' +
+      '</div></div></div>';
+    chatMessages.appendChild(cardDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function autoSelectIdentity(identity) {
+    var chatMessages = document.getElementById('chatMessages');
+    var idLabel = identity === 'buyer' ? '采购方法务' : '供应商法务';
+    var aiDiv = document.createElement('div');
+    aiDiv.className = 'msg msg-ai';
+    aiDiv.innerHTML = '<div class="msg-body"><div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>已识别您的身份为' + idLabel + '，将基于此立场进行合同审查。</div>';
+    chatMessages.appendChild(aiDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    completeStep2(identity);
+  }
+
+  window.selectIdentity = function(identity) {
+    var idLabel = identity === 'buyer' ? '采购方法务' : '供应商法务';
+    var chatMessages = document.getElementById('chatMessages');
+
+    // Disable identity section buttons instead of hiding
+    var chatIdentitySection = document.getElementById('chatIdentitySection');
+    if (chatIdentitySection) {
+      var sectionBtns = chatIdentitySection.querySelectorAll('button');
+      sectionBtns.forEach(function(b) {
+        b.disabled = true;
+        b.style.opacity = '0.5';
+        b.style.cursor = 'not-allowed';
+        b.classList.remove('selected');
+        if (b.textContent.trim() === idLabel) b.classList.add('selected');
+      });
+    }
+    // Hide chat empty identity actions
+    var chatIdentityActions = document.getElementById('chatIdentityActions');
+    if (chatIdentityActions) chatIdentityActions.style.display = 'none';
+
+    // Update identity card buttons
+    var btns = document.querySelectorAll('.identity-card-btn, .task-identity-btn');
+    btns.forEach(function(b) { b.classList.remove('selected'); });
+    var targetBtn = document.querySelector('[data-identity="' + identity + '"]') || document.querySelector('.identity-card-btn[onclick*="' + identity + '"]');
+    if (targetBtn) targetBtn.classList.add('selected');
+
+    setTimeout(function() {
+      // Step 1: Show confirmation message between identity section and expert preview (screenshot 1)
+      var chatIdentitySection = document.getElementById('chatIdentitySection');
+      var expertPreview = document.getElementById('expertPreview');
+      if (chatIdentitySection && expertPreview) {
+        var aiDiv = document.createElement('div');
+        aiDiv.className = 'msg msg-ai';
+        aiDiv.style.cssText = 'margin: 12px 0;';
+        aiDiv.innerHTML = '<div class="msg-body"><div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>已确认：您的身份为<strong>' + idLabel + '</strong>。将基于此立场进行合同审查。</div>';
+        chatIdentitySection.parentNode.insertBefore(aiDiv, expertPreview);
+      }
+
+      // Step 2: Show expert mode preview after a delay (screenshot 2)
+      setTimeout(function() {
+        if (expertPreview) expertPreview.style.display = 'block';
+        completeStep2(identity);
+      }, 800);
+    }, 300);
+  };
+
+  function completeStep2(identity) {
+    // Update step 2 in task list
+    var step2Icon = document.getElementById('step2Icon');
+    step2Icon.classList.remove('waiting');
+    step2Icon.classList.add('done');
+    step2Icon.innerHTML = '&#10003;';
+    var step2Actions = document.getElementById('step2Actions');
+    if (step2Actions) step2Actions.style.display = 'none';
+
+    // Update step 2 desc
+    var idLabel = identity === 'buyer' ? '采购方法务' : '供应商法务';
+    document.querySelector('#step2Card .task-step-desc').textContent = '已确认身份：' + idLabel;
+
+    // Step 3 thinking will be triggered by "确认执行" button instead
+  }
+
+  // ── Step Thinking Toggle ──
+  window.executionComplete = false;
+  window.toggleStepThinking = function(step) {
+    if (window.executionComplete) return;
+    var thinking = document.getElementById('step' + step + 'Thinking');
+    if (!thinking) return;
+    var card = document.querySelector('.task-step-card[data-step="' + step + '"]');
+    if (thinking.style.display === 'none' || thinking.style.display === '') {
+      thinking.style.display = 'block';
+      if (card) card.classList.add('expanded');
+    } else {
+      thinking.style.display = 'none';
+      if (card) card.classList.remove('expanded');
+    }
+  };
+
+  // ── Thinking Panel ──
+  function startThinking() {
+    var chatMessages = document.getElementById('chatMessages');
+
+    var thinkingContent = '正在进行合同合法性审查...\n审查关键条款：付款条款(第4条)、违约责任(第8条)、保密条款(第7条)、争议解决(第9条)\n\n合同合法性审查结果：\n- 第4.2条：违约金比例日千分之五，超出行业惯例（通常为日万分之一至万分之五）\n- 第7.1条：保密期限约定"永久"，法律实践中通常以3-5年为合理期限\n- 第9.3条：管辖法院约定不明确，需进一步明确具体管辖法院\n\n错别字审查进行中...\n- 发现错别字：0处\n- 标点符号不规范：2处\n\n广告合规审查进行中...\n- 广告用语合规性：通过\n- 禁用词检查：未发现违禁词';
+
+    // Add thinking to task list step 3
+    var step3Thinking = document.getElementById('step3Thinking');
+    if (step3Thinking) {
+      step3Thinking.style.display = 'block';
+      step3Thinking.innerHTML = '<div style="margin-top:8px;padding:8px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);white-space:pre-wrap;line-height:1.5;max-height:300px;overflow-y:auto;">' + thinkingContent + '</div>';
+    }
+
+    var thinkingDiv = document.createElement('div');
+    thinkingDiv.className = 'msg msg-ai';
+
+    thinkingDiv.innerHTML = '<div class="msg-body">' +
+      '<div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>' +
+      '正在进行逐条款审查分析...' +
+      '<div class="thinking-panel open" id="thinkingPanel">' +
+      '<div class="thinking-toggle" onclick="toggleThinking()">' +
+      '<span class="thinking-arrow">&#9662;</span> 思考过程' +
+      '</div>' +
+      '<div class="thinking-content">' + thinkingContent + '</div>' +
+      '</div></div>';
+
+    chatMessages.appendChild(thinkingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Simulate thinking progress → complete after delay
+    setTimeout(function() { completeStep3(); }, 4000);
+  }
+
+  window.toggleThinking = function() {
+    var panel = document.getElementById('thinkingPanel');
+    if (panel) panel.classList.toggle('open');
+  };
+
+  function completeStep3() {
+    // Update step 3 icon
+    var step3Icon = document.getElementById('step3Icon');
+    if (step3Icon) {
+      step3Icon.classList.remove('running');
+      step3Icon.classList.add('done');
+      step3Icon.innerHTML = '&#10003;';
+    }
+    // Update step 4 icon
+    var step4Icon = document.getElementById('step4Icon');
+    if (step4Icon) {
+      step4Icon.classList.remove('pending');
+      step4Icon.classList.add('running');
+      step4Icon.innerHTML = '&#128260;';
+    }
+
+    // AI message: disabled, result shown via result-block instead
+    // Complete step 4 after delay
+    setTimeout(function() {
+      if (step4Icon) {
+        step4Icon.classList.remove('running');
+        step4Icon.classList.add('done');
+        step4Icon.innerHTML = '&#10003;';
+      }
+    }, 2000);
+  }
+
+  // ── WPS Viewer ──
+  window.openWpsViewer = function(fileType) {
+    var chatMessages = document.getElementById('chatMessages');
+    var chatEmpty = document.getElementById('chatEmpty');
+    var wpsViewer = document.getElementById('wpsViewer');
+    var wpsContent = document.getElementById('wpsContent');
+    var wpsFileName = document.getElementById('wpsFileName');
+
+    // Hide chat, show viewer
+    chatMessages.style.display = 'none';
+    chatEmpty.style.display = 'none';
+    document.querySelector('.chat-input-area').style.display = 'none';
+    wpsViewer.classList.add('active');
+
+    if (fileType === 'annotated') {
+      wpsFileName.textContent = '采购合同_批注版.docx';
+      wpsContent.innerHTML = '<div class="wps-doc-title">采购合同</div>' +
+        '<div class="wps-doc-body">' +
+        '<p>合同编号：CG-2026-001</p>' +
+        '<p>甲方（买方）：XX科技有限公司</p>' +
+        '<p>乙方（卖方）：YY供应链有限公司</p>' +
+        '<p>...</p>' +
+        '<p><strong>第四条 付款条款</strong></p>' +
+        '<p>4.1 买方应于合同签订后30个工作日内支付合同总价的30%作为预付款。</p>' +
+        '<p>4.2 如买方逾期付款，每逾期一日，应按逾期金额的<span class="wps-del">日千分之五</span><span class="wps-ins">日万分之五</span>向卖方支付违约金。<span class="wps-comment-bubble">建议：违约金比例过高，已调整为行业标准</span></p>' +
+        '<p>...</p>' +
+        '<p><strong>第七条 保密条款</strong></p>' +
+        '<p>7.1 双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为<span class="wps-del">永久</span><span class="wps-ins">自合同终止之日起三年</span>。<span class="wps-comment-bubble">建议：永久保密难执行，改为三年</span></p>' +
+        '<p>...</p>' +
+        '<p><strong>第九条 争议解决</strong></p>' +
+        '<p>9.3 因本合同产生的争议，双方应协商解决；协商不成的，任何一方均可向<span class="wps-del">有管辖权的人民法院</span><span class="wps-ins">合同签订地人民法院</span>提起诉讼。<span class="wps-comment-bubble">建议：明确管辖法院地点</span></p>' +
+        '</div>';
+    } else {
+      wpsFileName.textContent = '采购合同_修改版.docx';
+      wpsContent.innerHTML = '<div class="wps-doc-title">采购合同（修改版）</div>' +
+        '<div class="wps-doc-body">' +
+        '<p>合同编号：CG-2026-001</p>' +
+        '<p>甲方（买方）：XX科技有限公司</p>' +
+        '<p>乙方（卖方）：YY供应链有限公司</p>' +
+        '<p>...</p>' +
+        '<p><strong>第四条 付款条款</strong></p>' +
+        '<p>4.1 买方应于合同签订后30个工作日内支付合同总价的30%作为预付款。</p>' +
+        '<p>4.2 如买方逾期付款，每逾期一日，应按逾期金额的日万分之五向卖方支付违约金。</p>' +
+        '<p>...</p>' +
+        '<p><strong>第七条 保密条款</strong></p>' +
+        '<p>7.1 双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为自合同终止之日起三年。</p>' +
+        '<p>...</p>' +
+        '<p><strong>第九条 争议解决</strong></p>' +
+        '<p>9.3 因本合同产生的争议，双方应协商解决；协商不成的，任何一方均可向合同签订地人民法院提起诉讼。</p>' +
+        '<p style="text-align:center;margin-top:30px;color:var(--risk-safe);">本版本已接受所有修订，可直接用于签署。</p>' +
+        '</div>';
+    }
+
+    // Switch right panel to 任务成果 tab
+    switchToTab('taskResult');
+  };
+
+  // WPS close button
+  document.getElementById('wpsCloseBtn').addEventListener('click', function() {
+    var chatMessages = document.getElementById('chatMessages');
+    var chatEmpty = document.getElementById('chatEmpty');
+    var wpsViewer = document.getElementById('wpsViewer');
+    wpsViewer.classList.remove('active');
+    chatMessages.style.display = '';
+    chatEmpty.style.display = '';
+    document.querySelector('.chat-input-area').style.display = '';
+  });
+
+  // ── Task Result Tab: Accept Suggestions ──
+  window.acceptSuggestion = function(btn) {
+    if (btn.classList.contains('accepted')) return;
+    btn.classList.add('accepted');
+    btn.textContent = '已接受';
+    btn.disabled = true;
+    // Grey out entire suggestion card
+    var card = btn.closest('.suggestion-card');
+    if (card) card.classList.add('accepted');
+    // Disable checkbox
+    var checkbox = card ? card.querySelector('.sugg-checkbox') : null;
+    if (checkbox) {
+      checkbox.style.cursor = 'default';
+      checkbox.style.pointerEvents = 'none';
+    }
+  };
+
+  window.acceptAllSuggestions = function() {
+    document.querySelectorAll('.result-sugg-accept').forEach(function(btn) {
+      acceptSuggestion(btn);
+    });
+  };
+
+  window.askFollowUp = function(text) {
+    var chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+      chatInput.value = text;
+      chatInput.focus();
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.max(36, Math.min(chatInput.scrollHeight, 200)) + 'px';
+    }
+  };
+  // ── Expert Panel ──
+  var expertTgl = document.getElementById('expertTgl');
+  var expertPanel = document.getElementById('expertPanel');
+  var expertPreview = document.getElementById('expertPreview');
+
+  window.openExpert = function() {
+    if (expertPanel) expertPanel.classList.add('open');
+  };
+  function closeExpert() { if (expertPanel) expertPanel.classList.remove('open'); }
+
+  if (expertTgl) {
+    expertTgl.addEventListener('change', function() {
+      if (this.checked) { if (expertPreview) expertPreview.style.display = 'block'; }
+      else { if (expertPreview) expertPreview.style.display = 'none'; closeExpert(); }
+    });
+  }
+
+  var cancelBtn = document.getElementById('cancelPlan');
+  var confirmBtn = document.getElementById('confirmPlan');
+  if (cancelBtn) cancelBtn.addEventListener('click', closeExpert);
+  if (confirmBtn) confirmBtn.addEventListener('click', function() { window.executePlan(); });
+
+  window.locateOriginalText = function(location, text) {
+    // Scroll to WPS viewer and highlight
+    var wpsViewer = document.getElementById('wpsViewer');
+    var wpsContent = document.getElementById('wpsContent');
+    var wpsFileName = document.getElementById('wpsFileName');
+    var chatMessages = document.getElementById('chatMessages');
+    var chatEmpty = document.getElementById('chatEmpty');
+
+    // Load annotated doc in WPS viewer
+    wpsFileName.textContent = '采购合同_批注版.docx';
+    wpsContent.innerHTML = '<div class="wps-doc-title">采购合同</div>' +
+      '<div class="wps-doc-body">' +
+      '<p>合同编号：CG-2026-001</p>' +
+      '<p>甲方（买方）：XX科技有限公司</p>' +
+      '<p>乙方（卖方）：YY供应链有限公司</p>' +
+      '<p>...</p>' +
+      '<p><strong>第四条 付款条款</strong></p>' +
+      '<p>4.1 买方应于合同签订后30个工作日内支付合同总价的30%作为预付款。</p>' +
+      '<p id="origin-4-2" style="background: #FEF2F2; padding: 4px 8px; border-left: 3px solid #DC2626; border-radius: 4px; margin: 8px 0;">4.2 如买方逾期付款，每逾期一日，应按逾期金额的<span class="wps-del">日千分之五</span><span class="wps-ins">日万分之五</span>向卖方支付违约金。<span class="wps-comment-bubble">建议：违约金比例过高，已调整为行业标准</span></p>' +
+      '<p>...</p>' +
+      '<p><strong>第七条 保密条款</strong></p>' +
+      '<p id="origin-7-1" style="background: #FFFBEB; padding: 4px 8px; border-left: 3px solid #D97706; border-radius: 4px; margin: 8px 0;">7.1 双方对合同内容及履行过程中知悉的对方商业秘密负有保密义务，保密期限为<span class="wps-del">永久</span><span class="wps-ins">自合同终止之日起三年</span>。<span class="wps-comment-bubble">建议：永久保密难执行，改为三年</span></p>' +
+      '<p>...</p>' +
+      '<p><strong>第九条 争议解决</strong></p>' +
+      '<p id="origin-9-3" style="background: #FFFBEB; padding: 4px 8px; border-left: 3px solid #D97706; border-radius: 4px; margin: 8px 0;">9.3 因本合同产生的争议，双方应协商解决；协商不成的，任何一方均可向<span class="wps-del">有管辖权的人民法院</span><span class="wps-ins">合同签订地人民法院</span>提起诉讼。<span class="wps-comment-bubble">建议：明确管辖法院地点</span></p>' +
+      '</div>';
+
+    // Show WPS viewer
+    chatMessages.style.display = 'none';
+    if (chatEmpty) chatEmpty.style.display = 'none';
+    document.querySelector('.chat-input-area').style.display = 'none';
+    wpsViewer.classList.add('active');
+
+    // Scroll to relevant origin after a brief delay
+    var originId = '';
+    if (location.indexOf('第4.2条') > -1) originId = 'origin-4-2';
+    else if (location.indexOf('第7.1条') > -1) originId = 'origin-7-1';
+    else if (location.indexOf('第9.3条') > -1) originId = 'origin-9-3';
+
+    setTimeout(function() {
+      var el = document.getElementById(originId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.transition = 'box-shadow 0.3s';
+        el.style.boxShadow = '0 0 0 3px rgba(52,199,89,0.4)';
+        setTimeout(function() { el.style.boxShadow = ''; }, 2000);
+      }
+    }, 400);
+  };
+
+  window.toggleSuggCheck = function(el) {
+    if (el.style.background === 'rgb(52, 199, 89)') {
+      el.style.background = '';
+      el.style.borderColor = '#D5D5D5';
+      el.innerHTML = '';
+    } else {
+      el.style.background = '#C4B89A';
+      el.style.borderColor = '#C4B89A';
+      el.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 5 4 7 8 3"/></svg>';
+    }
+  };
+
+  // ── Report Toggle ──
+  var tabTaskResult = document.getElementById('tabTaskResult');
+  var contractReviewHTML = tabTaskResult ? tabTaskResult.innerHTML : '';
+  window.currentScene = 'contract';
+
+  var toggleReportBtn = document.getElementById('toggleReport');
+  if (toggleReportBtn) {
+    toggleReportBtn.addEventListener('click', function() {
+      window.currentScene = 'contract';
+      if (tabTaskResult && contractReviewHTML) {
+        tabTaskResult.innerHTML = contractReviewHTML;
+      }
+      var rp = document.getElementById('reportPanel');
+      if (rp) rp.style.display = 'flex';
+      switchToTab('taskResult');
+    });
+  }
+
+  // ── Template Selection ──
+  var templates = {
+    contract: '请上传需要对比的合同文件（至少2份），系统将自动分析差异和风险。',
+    compliance: '请上传需要审查的文件，系统将检查其合规性。',
+    spell: '请上传需要检查的文档，系统将识别错别字和格式错误。',
+    risk: '请上传需要评估的文件，系统将识别潜在风险。'
+  };
+  window.selectTemplate = function(type) {
+    var el = document.getElementById('chatInput');
+    if (el) { el.value = templates[type] || ''; el.focus(); }
+  };
+
+  // ── Execute Plan (Expert Mode) ──
+  var resultBlock = document.querySelector('.result-block');
+  if (resultBlock) resultBlock.style.display = 'none';
+
+  window.executePlan = function() {
+    if (expertPanel) expertPanel.classList.remove('open');
+    if (resultBlock) resultBlock.style.display = 'none';
+
+    // Update task step 3 thinking content
+    var thinkingContent = '正在进行合同合法性审查...\n审查关键条款：付款条款(第4条)、违约责任(第8条)、保密条款(第7条)、争议解决(第9条)\n\n合同合法性审查结果：\n- 第4.2条：违约金比例日千分之五，超出行业惯例（通常为日万分之一至万分之五）\n- 第7.1条：保密期限约定"永久"，法律实践中通常以3-5年为合理期限\n- 第9.3条：管辖法院约定不明确，需进一步明确具体管辖法院\n\n错别字审查进行中...\n- 发现错别字：0处\n- 标点符号不规范：2处\n\n广告合规审查进行中...\n- 广告用词合规性：通过\n- 禁用词检查：未发现违禁词';
+    var step3Thinking = document.getElementById('step3Thinking');
+    if (step3Thinking) {
+      step3Thinking.style.display = 'block';
+      step3Thinking.innerHTML = '<div style="margin-top:8px;padding:8px;background:var(--surface-input);border-radius:6px;font-size:var(--text-2xs);color:var(--text-secondary);white-space:pre-wrap;line-height:1.5;max-height:300px;overflow-y:auto;">' + thinkingContent + '</div>';
+    }
+
+    var etaEl = expertPreview ? expertPreview.querySelector('.progress-eta') : null;
+    if (etaEl) etaEl.style.visibility = 'visible';
+
+    // Update step 3 icon to running
+    var step3Icon = document.getElementById('step3Icon');
+    if (step3Icon) {
+      step3Icon.classList.remove('pending');
+      step3Icon.classList.add('running');
+      step3Icon.innerHTML = '&#128260;';
+    }
+
+    var totalEstimate = 20;
+    var elapsedSim = 0;
+    var startTime = Date.now();
+    var stageRows = expertPreview ? expertPreview.querySelectorAll('.stage-row') : [];
+    var stageData = [];
+    stageRows.forEach(function(row) {
+      var dot = row.querySelector('.stage-dot');
+      var pct = row.querySelector('.stage-pct');
+      if (dot) dot.classList.remove('done'); 
+      if (dot) dot.classList.add('pending');
+      stageData.push({ dot: dot, pct: pct, baseText: pct ? pct.textContent : '' });
+    });
+
+    var previewFill = document.getElementById('expertOverallProgress');
+    var panelFill = document.getElementById('expertPanelProgress');
+    if (previewFill) previewFill.style.width = '0%';
+    if (panelFill) panelFill.style.width = '0%';
+
+    function formatTime(seconds) {
+      var m = Math.floor(seconds / 60);
+      var s = Math.round(seconds % 60);
+      if (m > 0) return m + ' 分 ' + (s < 10 ? '0' : '') + s + ' 秒';
+      return s + ' 秒';
+    }
+
+    var detail0 = document.getElementById('stageDetail0');
+    var detail1 = document.getElementById('stageDetail1');
+    var detail2 = document.getElementById('stageDetail2');
+    var d0shown = false, d1shown = false, d2shown = false;
+
+    var interval = setInterval(function() {
+      elapsedSim += (Math.random() * 0.6 + 0.4);
+      var realElapsed = (Date.now() - startTime) / 1000;
+      var factor = Math.min(elapsedSim / totalEstimate, 1);
+      var remaining = Math.max(totalEstimate - realElapsed, 0);
+      if (etaEl) etaEl.textContent = '预计剩余 ' + formatTime(remaining);
+
+      var overallPct = Math.round(factor * 100);
+      if (previewFill) previewFill.style.width = overallPct + '%';
+      if (panelFill) panelFill.style.width = overallPct + '%';
+
+      if (stageData.length >= 3) {
+        if (factor < 0.33) {
+          var s1p = Math.round(factor / 0.33 * 100);
+          if (stageData[0].pct) stageData[0].pct.textContent = stageData[0].baseText + ' · ' + s1p + '%';
+          if (stageData[0].dot) { stageData[0].dot.classList.remove('pending'); stageData[0].dot.classList.add('active'); }
+          if (detail0 && !d0shown) { d0shown = true; detail0.style.display = 'block'; detail0.textContent = '正在进行合同合法性审查...\n审查关键条款：付款条款(第4条)、违约责任(第8条)、保密条款(第7条)、争议解决(第9条)\n\n合同合法性审查结果：\n- 第4.2条：违约金比例日千分之五，超出行业惯例（通常为日万分之一至万分之五）\n- 第7.1条：保密期限约定"永久"，法律实践中通常以3-5年为合理期限\n- 第9.3条：管辖法院约定不明确，需进一步明确具体管辖法院'; }
+        } else if (factor >= 0.33 && !stageData[0].dot.classList.contains('done')) {
+          if (stageData[0].pct) stageData[0].pct.textContent = stageData[0].baseText + ' · 100%';
+          stageData[0].dot.classList.remove('active'); stageData[0].dot.classList.add('done');
+          if (stageData[1].dot) { stageData[1].dot.classList.remove('pending'); stageData[1].dot.classList.add('active'); }
+          // 隐藏Agent0详情，展示Agent1详情
+          if (detail0) detail0.style.display = 'none';
+          if (detail1) { detail1.style.display = 'block'; d1shown = true; detail1.textContent = '错别字审查进行中...\n- 发现错别字：0处\n- 标点符号不规范：2处'; }
+        }
+        if (factor >= 0.33 && factor < 0.66) {
+          var s2p = Math.round((factor - 0.33) / 0.33 * 100);
+          if (stageData[1].pct) stageData[1].pct.textContent = stageData[1].baseText + ' · ' + s2p + '%';
+        } else if (factor >= 0.66 && stageData[1].dot && !stageData[1].dot.classList.contains('done')) {
+          if (stageData[1].pct) stageData[1].pct.textContent = stageData[1].baseText + ' · 100%';
+          stageData[1].dot.classList.remove('active'); stageData[1].dot.classList.add('done');
+          if (stageData[2].dot) { stageData[2].dot.classList.remove('pending'); stageData[2].dot.classList.add('active'); }
+          // 隐藏Agent1详情，展示Agent2详情
+          if (detail1) detail1.style.display = 'none';
+          if (detail2) { detail2.style.display = 'block'; d2shown = true; detail2.textContent = '广告合规审查进行中...\n- 广告用词合规性：通过\n- 禁用词检查：未发现违禁词'; }
+        }
+        if (factor >= 0.66 && factor < 1) {
+          var s3p = Math.round((factor - 0.66) / 0.34 * 100);
+          if (stageData[2].pct) stageData[2].pct.textContent = stageData[2].baseText + ' · ' + s3p + '%';
+        } else if (factor >= 1) {
+          if (stageData[2].pct) stageData[2].pct.textContent = stageData[2].baseText + ' · 100%';
+          if (stageData[2].dot) { stageData[2].dot.classList.remove('active'); stageData[2].dot.classList.add('done'); }
+          if (etaEl) etaEl.textContent = '分析完成';
+          if (previewFill) previewFill.style.width = '100%';
+          if (panelFill) panelFill.style.width = '100%';
+          clearInterval(interval);
+          completeStep3();
+          // 隐藏最后一个Agent的详情
+          if (detail2) detail2.style.display = 'none';
+          // 隐藏任务清单中的步骤3详情
+          var st3 = document.getElementById('step3Thinking');
+          if (st3) st3.style.display = 'none';
+          ['step0Thinking','step1Thinking','step2Thinking','step3Thinking'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && el.style.display === 'block') el.style.display = 'none';
+          });
+          // 设置执行完成标志，禁止后续点击查看
+          window.executionComplete = true;
+          var vpb = expertPreview ? expertPreview.querySelector('button[onclick="openExpert()"]') : null;
+          var cfb = expertPreview ? expertPreview.querySelector('button[onclick="executePlan()"]') : null;
+          if (vpb) { vpb.disabled = true; vpb.style.opacity = '0.5'; vpb.style.cursor = 'not-allowed'; }
+          if (cfb) { cfb.disabled = true; cfb.style.opacity = '0.5'; cfb.style.cursor = 'not-allowed'; cfb.style.background = 'var(--surface-input)'; cfb.style.color = 'var(--text-disabled)'; cfb.style.borderColor = 'var(--border-subtle)'; }
+          setTimeout(function() {
+            if (resultBlock) resultBlock.style.display = 'block';
+            var cs = document.getElementById('chatMessages');
+            if (cs) cs.scrollTop = cs.scrollHeight;
+          }, 500);
+        }
+      }
+    }, 100);
+  };
+
+  // ── Chat Send ──
+  var chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendChatMessage(); }
+    });
+    chatInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.max(36, Math.min(this.scrollHeight, 200)) + 'px';
+    });
+  }
+
+  window.sendChatMessage = function() {
+    var text = chatInput ? chatInput.value.trim() : '';
+    if (!text) return;
+    var chatMessages = document.getElementById('chatMessages');
+    var chatEmpty = document.getElementById('chatEmpty');
+    if (chatEmpty) { chatEmpty.classList.remove('show'); chatEmpty.style.display = 'none'; }
+    var userDiv = document.createElement('div');
+    userDiv.className = 'msg msg-user';
+    userDiv.innerHTML = '<div class="msg-body"><div class="msg-meta"><span class="msg-avatar">王</span><span>王法务</span></div>' + text + '</div>';
+    chatMessages.appendChild(userDiv);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    // 检测制度合法性审查场景关键词
+    if (text.indexOf('考勤制度') !== -1 || text.indexOf('制度合不合法') !== -1) {
+      sendRegulationReviewScenario(chatMessages);
+      return;
+    }
+
+    setTimeout(function() {
+      var aiDiv = document.createElement('div');
+      aiDiv.className = 'msg msg-ai';
+      aiDiv.innerHTML = '<div class="msg-body"><div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>收到，正在分析您的问题…</div>';
+      chatMessages.appendChild(aiDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 400);
+  };
+
+  document.getElementById('sendBtn').addEventListener('click', window.sendChatMessage);
+
+  // 制度合法性审查场景
+  window.sendRegulationReviewScenario = function(chatMessages) {
+    setTimeout(function() {
+      var aiDiv1 = document.createElement('div');
+      aiDiv1.className = 'msg msg-ai';
+      aiDiv1.innerHTML = '<div class="msg-body">' +
+        '<div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>' +
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">' +
+        '<span style="font-size:15px; font-weight:700; color:#1A1A1A;">分析完成</span>' +
+        '<span style="font-size:12px; color:#999; cursor:pointer;" onclick="window.currentScene = \'regulation\'; updateRegulationReportPanel(); document.getElementById(\'reportPanel\').scrollIntoView();">查看完整结果 <span style="color:#C4B89A;">→</span></span>' +
+        '</div>' +
+        '<div style="display:flex; gap:10px; margin-bottom:16px;">' +
+        '<div style="flex:1; background:#fff; border-radius:10px; padding:14px 10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);"><div style="font-size:22px; font-weight:700; color:#6366F1;">3</div><div style="font-size:11px; color:#999; margin-top:2px;">修改建议</div></div>' +
+        '<div style="flex:1; background:#fff; border-radius:10px; padding:14px 10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);"><div style="font-size:22px; font-weight:700; color:#DC2626;">3</div><div style="font-size:11px; color:#999; margin-top:2px;">总风险</div></div>' +
+        '<div style="flex:1; background:#fff; border-radius:10px; padding:14px 10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);"><div style="font-size:22px; font-weight:700; color:#DC2626;">0</div><div style="font-size:11px; color:#999; margin-top:2px;">高风险</div></div>' +
+        '<div style="flex:1; background:#fff; border-radius:10px; padding:14px 10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);"><div style="font-size:22px; font-weight:700; color:#D97706;">3</div><div style="font-size:11px; color:#999; margin-top:2px;">中风险</div></div>' +
+        '<div style="flex:1; background:#fff; border-radius:10px; padding:14px 10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);"><div style="font-size:22px; font-weight:700; color:#059669;">0</div><div style="font-size:11px; color:#999; margin-top:2px;">低风险</div></div>' +
+        '</div>' +
+        '<div style="padding-left:8px; border-left:2px solid #F0F0F0;">' +
+        '<div style="display:flex; align-items:flex-start; gap:8px; padding:8px; margin-bottom:4px; background:#FFFDE7; border-radius:8px; font-size:12px;">' +
+        '<span style="color:#D97706; font-size:14px; flex-shrink:0; margin-top:1px;">▲</span>' +
+        '<div><strong style="color:#D97706;">中风险：制度未经民主程序制定</strong><br/><span style="color:#92400E;">仅由人力资源部起草、总经理办公会审批，未召开职工代表大会讨论。</span></div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:flex-start; gap:8px; padding:8px; margin-bottom:4px; background:#FFFDE7; border-radius:8px; font-size:12px;">' +
+        '<span style="color:#D97706; font-size:14px; flex-shrink:0; margin-top:1px;">▲</span>' +
+        '<div><strong style="color:#D97706;">中风险：旷工处罚过重且解除条件严苛</strong><br/><span style="color:#92400E;">旷工 1 天扣 3 天工资，连续 3 天即可无偿解除，外勤岗位极易因 GPS 触发。</span></div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:flex-start; gap:8px; padding:8px; background:#FFFDE7; border-radius:8px; font-size:12px;">' +
+        '<span style="color:#D97706; font-size:14px; flex-shrink:0; margin-top:1px;">▲</span>' +
+        '<div><strong style="color:#D97706;">中风险：考勤数据更正程序缺少员工确认环节</strong><br/><span style="color:#92400E;">系统管理员可单方面修正后台数据，员工无权复核且无通知机制，数据变更对员工不透明。</span></div>' +
+        '</div>' +
+        '</div></div>';
+      chatMessages.appendChild(aiDiv1);
+
+      setTimeout(function() {
+        var aiDiv2 = document.createElement('div');
+        aiDiv2.className = 'msg msg-ai';
+        aiDiv2.innerHTML = '<div class="msg-body"><div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>为了给您更准确的分析，能否补充：<br/><br/>' +
+          '<div style="font-size:12px; color:#5A5A5A; line-height:1.8;">1. 您是否已被依据该制度处罚？目前处于什么阶段？<br/>' +
+          '2. 公司发布该制度时是否召开过职工代表大会？您是否有相关证据？<br/>' +
+          '3. 您平时考勤是否遇到过 GPS 漂移或系统故障？是否有截图或记录？</div></div>';
+        chatMessages.appendChild(aiDiv2);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        updateRegulationReportPanel();
+      }, 1500);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 600);
+  };
+
+  // 更新报告面板为制度合法性审查内容
+  function updateRegulationReportPanel() {
+    window.currentScene = 'regulation';
+    var rp = document.getElementById('reportPanel');
+    if (rp) rp.style.display = 'flex';
+    switchToTab('taskResult');
+
+    tabTaskResult.innerHTML = '<div style="padding:16px;">' +
+      // 固定头部：完整结果
+      '<div style="position:sticky; top:0; z-index:999; background:#fff; padding-top:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">' +
+      '<div style="font-size:16px; font-weight:700; color:#1A1A1A; margin-bottom:4px; text-align:center;">完整结果</div>' +
+      '<div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#999; border-bottom:1px solid #E5E5E5; padding-bottom:10px;">' +
+      '<span>生成: 2026/6/4 16:00:00&nbsp;&nbsp;&nbsp;&nbsp;ID: REP-20260604-002</span>' +
+      '<span style="display:flex; align-items:center; gap:6px;">文件名称 <select id="fileFilter" onchange="filterContracts()" style="border:1px solid #D5D5D5; border-radius:6px; padding:3px 8px; font-size:12px; color:#333; background:#fff;"><option selected value="all">全部文件</option><option value="attendance">员工手册-智能考勤管理制度</option></select></span>' +
+      '</div></div>' +
+      // 分析总结
+      '<div style="font-size:16px; font-weight:700; color:#1A1A1A; margin-bottom:10px;">分析总结</div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:14px; line-height:1.6;">经审查，该竞业限制协议共存在5处修改建议，6处风险，其中包含 2 处高风险、2 处中风险、2处低风险。</div>' +
+      // 审查结果标题
+      '<div style="font-size:16px; font-weight:700; color:#1A1A1A; margin-bottom:12px;">制度合法性审查结果</div>' +
+      // 文件名
+      '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; padding:8px 12px; background:#F9FAFB; border-radius:8px; border-left:3px solid #C4B89A;">' +
+      '<span style="font-size:12px; color:#5A5A5A;">文件名：</span>' +
+      '<span style="font-size:12px; font-weight:600; color:#1A1A1A;">员工手册-智能考勤管理制度</span>' +
+      '<span style="font-size:10px; color:#999; margin-left:auto;">▼</span>' +
+      '</div>' +
+      // 审查结果总结
+      '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:6px;">审查结果总结</div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:14px; line-height:1.6;">经审查，该竞业限制协议共存在5处修改建议，6处风险，其中包含 2 处高风险、2 处中风险、2处低风险。</div>' +
+      // 审查结果详情
+      '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:12px;">审查结果详情</div>' +
+      '<div style="display:flex; gap:8px; margin-bottom:16px;">' +
+      '<button onclick="acceptAllRegulationSuggestions()" style="padding:7px 16px; border-radius:8px; background:#C4B89A; color:#fff; border:none; font-size:13px; font-weight:600; cursor:pointer;">一键接受所有修订</button>' +
+      '<button onclick="exportRegulationPDF()" style="padding:7px 16px; border-radius:8px; background:#fff; color:#C4B89A; border:1px solid #C4B89A; font-size:13px; font-weight:600; cursor:pointer;">生成修订文件</button>' +
+      '</div>' +
+
+      // Risk 1: 中风险
+      '<div class="suggestion-card" data-risk="mid" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px;">' +
+      '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">' +
+      '<span style="display:inline-block; font-size:11px; padding:2px 8px; border-radius:4px; font-weight:600; background:#FEF3C7; color:#D97706;">中风险</span>' +
+      '<button class="result-sugg-accept" onclick="acceptRegulationSuggestion(this)" style="padding:4px 12px; border-radius:6px; background:#fff; border:1px solid #059669; color:#059669; font-size:12px; font-weight:500; cursor:pointer;">待接受</button>' +
+      '<button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp(\'关于制度未经民主程序制定的问题，请详细说明我应该如何收集证据和维权\');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>' +
+      '</div>' +
+      '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+      '<span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width:18px; height:18px; border:2px solid #D5D5D5; border-radius:4px; flex-shrink:0; cursor:pointer; margin-top:2px;"></span>' +
+      '<div style="flex:1;">' +
+      '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:6px;">风险内容：制度未经民主程序制定</div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:6px;"><strong>建议修改内容：</strong>主张制度未经民主程序，不能作为处罚依据；要求公司补正民主程序（召开职工代表大会、保留签到表和会议纪要）。</div>' +
+      '<div style="font-size:12px; color:#999; margin-bottom:4px;">修改位置：<strong style="color:#5A5A5A;">第七章 7.1 条</strong></div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:4px;"><strong>原文内容：</strong><span style="color:#2563EB; text-decoration:underline; cursor:pointer;" onclick="alert(\'通过内嵌的wps打开原文件对应的位置\')">"本制度由人力资源部负责解释和修订。修订后的制度经总经理办公会审批后生效，并在 OA 系统公示 3 日。员工未在公示期内提出书面异议的，视为同意修订内容。"</span></div>' +
+      '<div style="font-size:12px; color:#C4B89A;"><strong>引用法条：</strong><a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color:#C4B89A;">《劳动合同法》第 4 条第 2 款</a> — "用人单位在制定、修改或者决定...直接涉及劳动者切身利益的规章制度...应当经职工代表大会或者全体职工讨论，提出方案和意见，与工会或者职工代表平等协商确定。"</div>' +
+      '</div></div></div>' +
+
+      // Risk 4: 中风险
+      '<div class="suggestion-card" data-risk="mid" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px;">' +
+      '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">' +
+      '<span style="display:inline-block; font-size:11px; padding:2px 8px; border-radius:4px; font-weight:600; background:#FEF3C7; color:#D97706;">中风险</span>' +
+      '<button class="result-sugg-accept" onclick="acceptRegulationSuggestion(this)" style="padding:4px 12px; border-radius:6px; background:#fff; border:1px solid #059669; color:#059669; font-size:12px; font-weight:500; cursor:pointer;">待接受</button>' +
+      '<button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp(\'旷工1天扣3天工资是否违法？请详细说明相关法律依据和应对策略\');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>' +
+      '</div>' +
+      '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+      '<span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width:18px; height:18px; border:2px solid #D5D5D5; border-radius:4px; flex-shrink:0; cursor:pointer; margin-top:2px;"></span>' +
+      '<div style="flex:1;">' +
+      '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:6px;">风险内容：旷工处罚过重且解除条件严苛</div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:6px;"><strong>建议修改内容：</strong>主张"旷工 1 天扣 3 天工资"违法，要求改为按实际旷工天数扣减；要求增加"系统故障导致的未打卡不计入旷工"的例外条款。</div>' +
+      '<div style="font-size:12px; color:#999; margin-bottom:4px;">修改位置：<strong style="color:#5A5A5A;">第四章 4.1.2 条、4.2.1 条、4.3.1 条</strong></div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:4px;"><strong>原文内容：</strong><span style="color:#2563EB; text-decoration:underline; cursor:pointer;" onclick="alert(\'通过内嵌的wps打开原文件对应的位置\')">"迟到/早退 > 30 分钟按旷工半天处理；旷工 1 天扣减 3 日工资 + 记过处分；连续旷工 3 日以上...公司有权解除劳动合同且不支付经济补偿金。"</span></div>' +
+      '<div style="font-size:12px; color:#C4B89A;"><strong>引用法条：</strong><a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color:#C4B89A;">《工资支付暂行规定》第 16 条</a> — "因劳动者本人原因给用人单位造成经济损失的...每月扣除的部分不得超过劳动者当月工资的 20%。"</div>' +
+      '</div></div></div>' +
+
+      // Risk 3: 中风险
+      '<div class="suggestion-card" data-risk="mid" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px;">' +
+      '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">' +
+      '<span style="display:inline-block; font-size:11px; padding:2px 8px; border-radius:4px; font-weight:600; background:#FEF3C7; color:#D97706;">中风险</span>' +
+      '<button class="result-sugg-accept" onclick="acceptRegulationSuggestion(this)" style="padding:4px 12px; border-radius:6px; background:#fff; border:1px solid #059669; color:#059669; font-size:12px; font-weight:500; cursor:pointer;">待接受</button>' +
+      '<button class="result-sugg-ask" onclick="event.stopPropagation(); askFollowUp(\'公司单方面修改我的考勤数据是否合法？我应该如何应对\');" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:500;">追问</button>' +
+      '</div>' +
+      '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+      '<span class="sugg-checkbox" onclick="toggleSuggCheck(this)" style="width:18px; height:18px; border:2px solid #D5D5D5; border-radius:4px; flex-shrink:0; cursor:pointer; margin-top:2px;"></span>' +
+      '<div style="flex:1;">' +
+      '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:6px;">风险内容：考勤数据更正程序缺少员工确认环节</div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:6px;"><strong>建议修改内容：</strong>要求公司在考勤数据发生更正时，必须向员工发送书面通知并取得确认；员工有权在 5 个工作日内提出异议并申请复核；未获员工确认的数据更正不得作为处罚依据。</div>' +
+      '<div style="font-size:12px; color:#999; margin-bottom:4px;">修改位置：<strong style="color:#5A5A5A;">第三章 3.2.1 条</strong></div>' +
+      '<div style="font-size:12px; color:#5A5A5A; margin-bottom:4px;"><strong>原文内容：</strong><span style="color:#2563EB; text-decoration:underline; cursor:pointer;" onclick="alert(\'通过内嵌的wps打开原文件对应的位置\')">"系统管理员有权根据部门负责人反馈、异常情况报告等，对考勤数据进行修正、标注或删除。"</span></div>' +
+      '<div style="font-size:12px; color:#C4B89A;"><strong>引用法条：</strong><a href="https://www.pkulaw.com/chl/6ae01ebccdeb2997bdfb.html" target="_blank" style="color:#C4B89A;">《劳动争议调解仲裁法》第 6 条</a> — "与争议事项有关的证据属于用人单位掌握管理的，用人单位应当提供；用人单位不提供的，应当承担不利后果。"</div>' +
+      '</div></div></div>' +
+      '</div>';
+
+    // 更新生成文件tab
+    var tabGenFiles = document.getElementById('tabGenFiles');
+    if (tabGenFiles) {
+      tabGenFiles.innerHTML = '<div class="gen-file-item" onclick="alert(\'WPS查看器打开中…\')">' +
+        '<div class="gen-file-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="12" height="16" rx="1"/><line x1="7" y1="6" x2="13" y2="6"/><line x1="7" y1="10" x2="13" y2="10"/><line x1="7" y1="14" x2="10" y2="14"/></svg></div>' +
+        '<div class="gen-file-info"><div class="gen-file-name">员工手册-智能考勤管理制度_制度合法性审查报告.docx</div>' +
+        '<span class="gen-file-tag">创建时间 2026-06-04 14:30</span></div></div>' +
+        '<div style="padding:16px; text-align:center; color:#999; font-size:12px;">审查报告文件已生成，点击可预览</div>';
+    }
+  }
+
+  // 制度审查建议接受
+  window.acceptRegulationSuggestion = function(btn) {
+    if (btn.textContent === '待接受') {
+      btn.textContent = '已接受';
+      btn.style.background = '#059669';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#059669';
+    } else {
+      btn.textContent = '待接受';
+      btn.style.background = '#fff';
+      btn.style.color = '#059669';
+      btn.style.borderColor = '#059669';
+    }
+  };
+
+  window.acceptAllRegulationSuggestions = function() {
+    document.querySelectorAll('#tabTaskResult .result-sugg-accept').forEach(function(btn) {
+      btn.textContent = '已接受';
+      btn.style.background = '#059669';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#059669';
+    });
+  };
+
+  window.exportRegulationPDF = function() {
+    alert('正在生成修订文件，请稍候…');
+  };
+
+  // 制度审查统计卡片筛选
+  window.filterRegulationStats = function(level) {
+    // 更新卡片激活状态
+    document.querySelectorAll('#tabTaskResult .filter-stat-card').forEach(function(card) {
+      if (card.getAttribute('data-filter') === level) {
+        card.style.border = '2px solid #C4B89A';
+      } else {
+        card.style.border = '2px solid transparent';
+      }
+    });
+    // 筛选风险卡片
+    document.querySelectorAll('#tabTaskResult .suggestion-card').forEach(function(card) {
+      if (level === 'all' || level === 'suggestion') { card.style.display = ''; return; }
+      var risk = card.getAttribute('data-risk');
+      card.style.display = (risk === level) ? '' : 'none';
+    });
+  };
+
+  // Clear chat
+  document.getElementById('clearBtn').addEventListener('click', function() {
+    var chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) chatMessages.innerHTML = '';
+    var chatEmpty = document.getElementById('chatEmpty');
+    if (chatEmpty) {
+      chatEmpty.classList.add('show');
+      chatEmpty.style.display = 'flex';
+    }
+  });
+
+  // Init expert mode and chat empty state
+  setTimeout(function() {
+    if (expertTgl) { expertTgl.checked = false; if (expertPreview) expertPreview.style.display = 'none'; }
+    // Check chat messages
+    var chatMsgs = document.getElementById('chatMessages');
+    var chatEmp = document.getElementById('chatEmpty');
+    if (chatMsgs && chatEmp) {
+      if (chatMsgs.children.length > 0) {
+        chatEmp.classList.remove('show');
+      } else {
+        chatEmp.classList.add('show');
+      }
+    }
+  }, 100);
+
+  // ── Plan checkboxes ──
+  document.querySelectorAll('.plan-check').forEach(function(el) {
+    el.addEventListener('click', function() { this.classList.toggle('checked'); });
+  });
+
+  // ── Suggestion checkboxes ──
+  document.querySelectorAll('.sugg-check').forEach(function(el) {
+    el.addEventListener('click', function() {
+      if (this.style.background === 'rgb(26, 54, 93)') {
+        this.style.background = ''; this.style.borderColor = ''; this.innerHTML = '';
+      } else {
+        this.style.background = 'var(--accent)'; this.style.borderColor = 'var(--accent)';
+        this.innerHTML = '<span style="color:white;display:flex;align-items:center;justify-content:center;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 5 4 7 8 3"/></svg></span>';
+      }
+    });
+  });
+
+})();
+</script>
+
+</div>
+<!-- appLayout end -->
+
+<!-- Auto-execute task steps simulation & accordion thinking -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Thinking contents ──
+  var thinkingContents = [
+    '正在读取上传文件的基本信息…\n' +
+    '检测到 5 个文件，格式分别为 PDF 和 DOCX，总大小约 10.5MB。\n' +
+    '首先处理"采购合同V3_终版.pdf"——这是主合同文件，优先级最高。\n' +
+    '进行 OCR 文本提取… 共识别 12 页、约 3500 字。\n' +
+    '检测到合同包含以下关键模块：甲乙双方信息、标的物描述、付款条款、违约责任、争议解决。\n' +
+    '继续解析"采购合同_补充协议.docx"… 该文件与主合同存在条款引用关系，需要交叉比对。\n' +
+    '其余 3 个文件为附件材料，暂作为辅助参考。\n' +
+    '文件解析阶段完成，共提取 5 份文档的文本结构。',
+
+    '接收到用户身份选择指令…\n' +
+    '当前可选角色："采购方法务"与"供应商法务"。\n' +
+    '这两个角色对同一份合同的审查立场有明显差异——采购方通常更关注价格保护和质量条款，供应商则更关注回款周期和免责范围。\n' +
+    '用户选择了某一角色后，需要据此调整后续所有 Agent 的审查权重。\n' +
+    '同时匹配该角色对应的历史审查偏好数据…\n' +
+    '偏好匹配完成，审查策略已就绪。',
+
+    '进入专家模式，开始构建智能体执行方案。\n' +
+    '当前任务复杂度评估：涉及合同条款差异比对、法律合规审查、错别字检测、广告法审查，共需 4 个专业 Agent 协同。\n' +
+    '规划执行顺序：合法性审查 Agent 先行（作为基础判断）→ 条款对比 Agent 并行（对比主合同与补充协议）→ 错别字 Agent 与广告法 Agent 随后跟进。\n' +
+    '已为每个 Agent 分配对应工具链：\n' +
+    '  · 合法性审查 Agent → 法条检索 + 条款比对 + 合规判定\n' +
+    '  · 条款对比 Agent → 文本差异检测 + 条款语义对齐\n' +
+    '  · 错别字审查 Agent → NLP 文本校对 + 错别字标注\n' +
+    '  · 广告合规 Agent → 广告法条文检索 + 敏感词检测\n' +
+    '所有 Agent 工具链依赖关系校验通过，执行计划生成完毕。',
+
+    '各 Agent 执行完毕，开始汇总审查结果。\n' +
+    '合法性审查 Agent 返回：发现 2 处违规条款，涉及违约金比例和管辖法院约定。\n' +
+    '条款对比 Agent 返回：主合同与补充协议存在 3 处不一致，集中在付款期限、违约比例、争议解决方式。\n' +
+    '错别字审查 Agent 返回：共发现 6 个错别字，主要分布在合同正文第 3、7、11 条。\n' +
+    '广告合规 Agent 返回：未发现广告法相关违规项。\n' +
+    '正在整合为统一的审查报告…\n' +
+    '按重要程度排序：高风险 2 项、中风险 3 项，修改建议共 8 条。\n' +
+    '成果数据已打包完毕，准备推送到任务成果面板。'
+  ];
+
+  // ── Helper: show a step card ──
+  function showStep(cardId, iconId) {
+    var card = document.getElementById(cardId);
+    if (!card) return false;
+    if (card.classList.contains('step-visible')) return true; // already shown
+    card.classList.add('step-visible');
+    var icon = document.getElementById(iconId);
+    if (icon && !icon.classList.contains('done')) {
+      icon.classList.remove('waiting', 'pending');
+      icon.classList.add('running');
+      icon.innerHTML = '&#128260;';
+    }
+    return true;
+  }
+
+  // ── Helper: mark step done ──
+  function markDone(iconId, delay) {
+    setTimeout(function() {
+      var icon = document.getElementById(iconId);
+      if (icon && !icon.classList.contains('done')) {
+        icon.classList.remove('waiting', 'pending', 'running');
+        icon.classList.add('done');
+        icon.innerHTML = '&#10003;';
+      }
+    }, delay || 1000);
+  }
+
+  // ── Phase 1: Steps 1 & 2 auto-appear ──
+  setTimeout(function() {
+    showStep('step1Card', 'step1Icon');
+    markDone('step1Icon', 1800);
+  }, 500);
+
+  setTimeout(function() {
+    showStep('step2Card', 'step2Icon');
+    markDone('step2Icon', 1800);
+  }, 2500);
+
+  // ── Phase 2: Step 3 — triggered by identity button clicks ──
+  function bindStep3Trigger() {
+    var candidates = document.querySelectorAll(
+      '.identity-card-btn, .task-identity-btn, button[data-identity]'
+    );
+    candidates.forEach(function(btn) {
+      if (btn._step3Bound) return;
+      btn._step3Bound = true;
+      btn.addEventListener('click', function() {
+        showStep('step3Card', 'step3Icon');
+        markDone('step3Icon', 1200);
+      });
+    });
+
+    // Fallback: listen for clicks containing "采购方法务" or "供应商法务" text
+    document.body.addEventListener('click', function(e) {
+      var el = e.target.closest('button');
+      if (!el) return;
+      if (el._step3Bound) return;
+      var txt = (el.textContent || '').trim();
+      if (txt === '采购方法务' || txt === '供应商法务') {
+        el._step3Bound = true;
+        showStep('step3Card', 'step3Icon');
+        markDone('step3Icon', 1200);
+      }
+    });
+  }
+
+  // ── Phase 3: Step 4 — triggered by chat analysis results ──
+  
+  // ── Collapse toggle ──
+  function toggleCollapseCard(header) {
+    var body = header.nextElementSibling;
+    var arrow = header.querySelector('.collapse-arrow');
+    if (!body || !arrow) return;
+    if (body.style.maxHeight === '0px') {
+      body.style.maxHeight = '2000px';
+      arrow.style.transform = 'rotate(0deg)';
+      arrow.textContent = '▼';
+    } else {
+      body.style.maxHeight = '0px';
+      arrow.style.transform = 'rotate(180deg)';
+      arrow.textContent = '▶';
+    }
+  }
+
+  // ── WPS inline preview ──
+  function openWpsPreview(title, text) {
+    var panel = document.getElementById('wpsPreviewPanel');
+    if (!panel) return;
+    document.getElementById('wpsPreviewTitle').textContent = '合同条款原文预览 — ' + title;
+    document.getElementById('wpsPreviewText').textContent = text;
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function closeWpsPreview() {
+    var panel = document.getElementById('wpsPreviewPanel');
+    if (panel) panel.style.display = 'none';
+  }
+
+function bindStep4Observer() {
+    var triggered = false;
+
+    function fireStep4() {
+      if (triggered) return;
+      triggered = true;
+      if (childObserver) childObserver.disconnect();
+      if (attrObserver) attrObserver.disconnect();
+      if (pollTimer) clearInterval(pollTimer);
+      setTimeout(function() {
+        showStep('step4Card', 'step4Icon');
+        markDone('step4Icon', 1200);
+      }, 300);
+    }
+
+    function checkNodeText(node) {
+      var text = (node.textContent || '');
+      if (text.indexOf('分析完成') === -1) return false;
+      var requiredLabels = ['修改建议', '总风险', '高风险', '中风险', '低风险'];
+      var matchCount = 0;
+      for (var k = 0; k < requiredLabels.length; k++) {
+        if (text.indexOf(requiredLabels[k]) !== -1) matchCount++;
+      }
+      if (matchCount < 2) return false;
+      if (text.indexOf('查看完整结果') === -1) return false;
+      return true;
+    }
+
+    // Strategy 1: Direct check — result-block might already be visible
+    var resultBlock = document.querySelector('.result-block');
+    if (resultBlock && resultBlock.style.display !== 'none' && checkNodeText(resultBlock)) {
+      fireStep4();
+      return;
+    }
+
+    // Strategy 2: Attribute observer on .result-block (for style display:none → block)
+    var attrObserver = null;
+    if (resultBlock) {
+      attrObserver = new MutationObserver(function() {
+        if (resultBlock.style.display !== 'none' && checkNodeText(resultBlock)) {
+          fireStep4();
+        }
+      });
+      attrObserver.observe(resultBlock, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
+
+    // Strategy 3: ChildList observer on chat container (for dynamically added nodes)
+    var childObserver = null;
+    var chatBox = document.getElementById('chatMessages') ||
+                   document.querySelector('.chat-messages-area') ||
+                   document.querySelector('.chat-panel');
+    if (chatBox) {
+      childObserver = new MutationObserver(function(mutations) {
+        if (triggered) return;
+        for (var i = 0; i < mutations.length; i++) {
+          var added = mutations[i].addedNodes;
+          for (var j = 0; j < added.length; j++) {
+            var node = added[j];
+            if (node.nodeType !== 1) continue;
+            if (checkNodeText(node)) {
+              fireStep4();
+              return;
+            }
+          }
+        }
+      });
+      childObserver.observe(chatBox, { childList: true, subtree: true });
+    }
+
+    // Strategy 4: Polling fallback (500ms intervals, up to 30s)
+    var pollCount = 0;
+    var pollTimer = setInterval(function() {
+      pollCount++;
+      if (triggered || pollCount > 60) {
+        clearInterval(pollTimer);
+        return;
+      }
+      var rb = document.querySelector('.result-block');
+      if (rb && rb.style.display !== 'none' && checkNodeText(rb)) {
+        fireStep4();
+      }
+    }, 500);
+  }
+
+  // ── Accordion: click to expand thinking details ──
+  var currentOpenCard = null;
+  var currentOpenDetail = null;
+
+  function closeDetail() {
+    if (currentOpenDetail) {
+      currentOpenDetail.style.maxHeight = '0';
+      currentOpenDetail.style.paddingTop = '0';
+      currentOpenDetail.style.paddingBottom = '0';
+      currentOpenDetail.style.marginTop = '0';
+      var detail = currentOpenDetail;
+      setTimeout(function() {
+        if (detail.parentNode) detail.remove();
+      }, 350);
+      currentOpenDetail = null;
+      currentOpenCard = null;
+    }
+  }
+
+  document.querySelectorAll('.task-step-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      var icon = card.querySelector('.task-step-icon');
+      if (!icon || !icon.classList.contains('done')) return;
+
+      var stepNum = parseInt(card.getAttribute('data-step'));
+      if (isNaN(stepNum)) return;
+
+      if (currentOpenCard && currentOpenCard !== card) {
+        closeDetail();
+      }
+
+      var detail = card.querySelector('.think-detail');
+      if (detail) {
+        closeDetail();
+      } else {
+        detail = document.createElement('div');
+        detail.className = 'think-detail';
+        detail.textContent = thinkingContents[stepNum - 1] || '';
+        card.appendChild(detail);
+        currentOpenCard = card;
+        currentOpenDetail = detail;
+        requestAnimationFrame(function() {
+          detail.style.maxHeight = '400px';
+          detail.style.paddingTop = '12px';
+          detail.style.paddingBottom = '12px';
+          detail.style.marginTop = '8px';
+        });
+      }
+
+      e.stopPropagation();
+    });
+  });
+
+  // Run bindings on load
+  bindStep3Trigger();
+  bindStep4Observer();
+
+})();
+</script>
+
+<script>
+function filterContracts() {
+  var sel = document.getElementById('fileFilter');
+  var v = sel.value;
+  var software = document.getElementById('section-software');
+  if (v === 'purchase') {
+    if (software) software.style.display = 'none';
+  } else {
+    if (software) software.style.display = '';
+  }
+}
+</script>
+
+
+<script>
+// ── Home Page File Management ──
+function handleHomeFiles(files) {
+  var list = document.getElementById('homeFileList');
+  list.style.display = 'flex';
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    var card = document.createElement('div');
+    card.className = 'home-file-card';
+    var sizeStr = f.size < 1048576 ? (f.size / 1024).toFixed(1) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB';
+    card.innerHTML = 
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
+        '<polyline points="14 2 14 8 20 8"/>' +
+      '</svg>' +
+      '<span class="file-name" style="flex:1;font-size:13px;color:#333;text-align:left;">' + f.name + '</span>' +
+      '<span style="font-size:11px;color:#999;margin-right:8px;">' + sizeStr + '</span>' +
+      '<button class="home-file-delete" onclick="removeFile(this)" title="移除">×</button>';
+    list.appendChild(card);
+  }
+}
+
+function removeFile(btn) {
+  var card = btn.closest('.home-file-card');
+  if (card) {
+    card.remove();
+    var list = document.getElementById('homeFileList');
+    if (list && list.children.length === 0) {
+      list.style.display = 'none';
+    }
+  }
+}
+
+function startScenario(type) {
+  var homePage = document.getElementById('homePage');
+  if (homePage) homePage.classList.add('hidden');
+  // Navigate to workspace for execution
+  console.log('Scenario started:', type);
+}
+
+function startAgent(type) {
+  var homePage = document.getElementById('homePage');
+  if (homePage) homePage.classList.add('hidden');
+  console.log('Agent started:', type);
+}
+</script>
+
+</body>
+</html>
