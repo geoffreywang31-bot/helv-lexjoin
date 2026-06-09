@@ -3207,6 +3207,10 @@ body {
               <span style="font-size: 14px; font-weight: 600; color: #1a1a2e; padding-left: 10px; border-left: 3px solid #C4B89A;">文件名：采购实施合同</span>
               <span class="collapse-arrow" style="font-size: 12px; color: #999; transition: transform 0.3s ease;">▼</span>
             </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 12px;">
+              <button class="result-accept-all" onclick="acceptAllSuggestions()" style="padding: 7px 16px; border-radius: 8px; background: #C4B89A; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">一键接受所有修订</button>
+              <button class="export-pdf-btn" onclick="exportResultPDF()" style="padding: 7px 16px; border-radius: 8px; background: #fff; color: #C4B89A; border: 1px solid #C4B89A; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">生成修订文件</button>
+            </div>
             <div style="margin-bottom: 10px;">
               <div style="font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 6px;">审查结果概览</div>
               <div style="font-size: 12px; color: #5A5A5A; line-height: 1.6; margin-bottom: 12px;">您上传的文件，错别字审查智能体，共审查出修改建议1条</div>
