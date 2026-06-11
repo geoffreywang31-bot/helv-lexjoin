@@ -3247,6 +3247,37 @@ body {
         </div>
     </div>
 
+      <!-- 多轮对话起草 Section -->
+      <div class="report-sect" style="padding: 16px;" id="draftReportSection">
+        <div class="sect-heading" style="font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 10px;">分析总结</div>
+        <div style="font-size: 12px; color: #5A5A5A; line-height: 1.8; margin-bottom: 16px;">
+          <strong>任务成果：技术服务合同</strong> ✅ 已完成（6/6 项填空）<br>
+          📋 <strong>模板信息：</strong><br>
+          &nbsp;&nbsp;• 模板名称：技术服务合同（标准版）<br>
+          &nbsp;&nbsp;• 总填空项：6项 • 全部已填写
+        </div>
+        <div class="sect-heading" style="font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#C4B89A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="12" height="10" rx="1"/><polyline points="6 2 6 5"/><polyline points="12 2 12 5"/><line x1="6" y1="9" x2="12" y2="9"/><line x1="6" y1="12" x2="10" y2="12"/></svg>
+          多轮对话起草内容
+        </div>
+        <div class="sugg-collapse-card" style="background: #fff; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); padding: 16px; border: 1px solid #F0F0F0;">
+          <div class="sugg-collapse-header" onclick="toggleCollapseCard(this)" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 12px;">
+            <span style="font-size: 14px; font-weight: 600; color: #1a1a2e; padding-left: 10px; border-left: 3px solid #C4B89A;">文件名：采购实施合同</span>
+            <span class="collapse-arrow" style="font-size: 12px; color: #999; transition: transform 0.3s ease;">▼</span>
+          </div>
+          <div class="sugg-collapse-body" style="max-height: 2000px; overflow: hidden; transition: max-height 0.3s ease;">
+            <div style="font-size: 12px; color: #5A5A5A; line-height: 1.8;">
+              • 甲方名称：北京某某科技有限公司<br>
+              • 乙方名称：上海某某软件有限公司<br>
+              • 服务内容与范围：企业微信定制开发客户...<br>
+              • 合同金额：50万元<br>
+              • 付款方式：分3期（3:4:3）<br>
+              • 服务期限：2024年7月1日-2025年6月30日
+            </div>
+          </div>
+        </div>
+      </div>
+
     <!-- Tab 3: 生成文件 -->
     <div class="report-tab-content" id="tabGenFiles">
       <div class="gen-file-item" data-file="contract2" onclick="openWpsViewer('contract2')">
@@ -3979,6 +4010,12 @@ body {
     chatInput.value = '';
     chatInput.style.height = 'auto';
 
+    // 检测合同起草场景关键词
+    if (text.indexOf('起草') !== -1 || text.indexOf('起草一份合同') !== -1) {
+      sendDraftContractScenario(chatMessages);
+      return;
+    }
+
     // 检测制度合法性审查场景关键词
     if (text.indexOf('考勤制度') !== -1 || text.indexOf('制度合不合法') !== -1) {
       sendRegulationReviewScenario(chatMessages);
@@ -3995,6 +4032,35 @@ body {
   };
 
   document.getElementById('sendBtn').addEventListener('click', window.sendChatMessage);
+
+  // 合同起草场景
+  window.sendDraftContractScenario = function(chatMessages) {
+    setTimeout(function() {
+      var aiDiv = document.createElement('div');
+      aiDiv.className = 'msg msg-ai';
+      aiDiv.innerHTML = '<div class="msg-body">' +
+        '<div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>' +
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">' +
+        '<span style="font-size:15px; font-weight:700; color:#1A1A1A;">合同起草完成</span>' +
+        '<span style="font-size:12px; color:#999; cursor:pointer;" onclick="document.getElementById(\'reportPanel\').scrollIntoView(); document.getElementById(\'draftReportSection\').scrollIntoView();">查看完整结果 <span style="color:#C4B89A;">→</span></span>' +
+        '</div>' +
+        '<div style="background:#fff; border-radius:12px; padding:16px; box-shadow:0 1px 6px rgba(0,0,0,0.06); border: 1px solid #F0F0F0; font-size:12px; color:#5A5A5A; line-height:1.8;">' +
+        '<strong style="font-size:14px; color:#1A1A1A;">任务成果：技术服务合同</strong> <span style="color:#059669;">✅ 已完成（6/6 项填空）</span><br>' +
+        '<span style="font-size:12px; font-weight:600; color:#1A1A1A;">📋 模板信息：</span><br>' +
+        '&nbsp;&nbsp;• 模板名称：技术服务合同（标准版）<br>' +
+        '&nbsp;&nbsp;• 总填空项：6项 • 全部已填写<br>' +
+        '<span style="font-size:12px; font-weight:600; color:#1A1A1A;">📝 填写内容汇总：</span><br>' +
+        '&nbsp;&nbsp;• 甲方名称：北京某某科技有限公司<br>' +
+        '&nbsp;&nbsp;• 乙方名称：上海某某软件有限公司<br>' +
+        '&nbsp;&nbsp;• 服务内容与范围：企业微信定制开发客户...<br>' +
+        '&nbsp;&nbsp;• 合同金额：50万元<br>' +
+        '&nbsp;&nbsp;• 付款方式：分3期（3:4:3）<br>' +
+        '&nbsp;&nbsp;• 服务期限：2024年7月1日-2025年6月30日' +
+        '</div></div>';
+      chatMessages.appendChild(aiDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 600);
+  };
 
   // 制度合法性审查场景
   window.sendRegulationReviewScenario = function(chatMessages) {
