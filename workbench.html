@@ -2561,6 +2561,148 @@ body {
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+/* 专家模式 - 查看完整计划悬浮窗 */
+.expert-plan-popover {
+  position: fixed;
+  right: 380px;
+  top: 160px;
+  width: 340px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #E8E8E8;
+  z-index: 1000;
+  padding: 0;
+  display: none;
+  animation: fadeInRight 0.25s ease;
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.expert-plan-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid #F0F0F0;
+}
+.expert-plan-popover-header span {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+.expert-plan-popover-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.expert-plan-popover-close:hover {
+  background: #F5F5F5;
+  color: #333;
+}
+.expert-plan-popover-body {
+  padding: 16px 20px 20px;
+}
+.expert-plan-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #F5F5F5;
+}
+.expert-plan-step:last-child {
+  border-bottom: none;
+}
+.expert-plan-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.expert-plan-step-icon.draft { background: #E8F5E9; color: #2E7D32; }
+.expert-plan-step-icon.typo { background: #FFF3E0; color: #E65100; }
+.expert-plan-step-icon.ad { background: #E3F2FD; color: #1565C0; }
+.expert-plan-step-content h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 4px;
+}
+.expert-plan-step-content p {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0;
+}
+.expert-plan-checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 5px;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+.expert-plan-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  width: 0;
+  height: 0;
+}
+.expert-plan-checkbox .checkmark {
+  position: absolute;
+  top: 0; left: 0;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #C4B89A;
+  border-radius: 4px;
+  background: #fff;
+  transition: all 0.15s;
+}
+.expert-plan-checkbox input:checked ~ .checkmark {
+  background: #C4B89A;
+}
+.expert-plan-checkbox .checkmark::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.expert-plan-checkbox input:checked ~ .checkmark::after {
+  display: block;
+}
+.expert-plan-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C4C4C4;
+  font-size: 14px;
+  padding: 4px 0;
+}
 </style>
 </head>
 <body>
@@ -4072,8 +4214,9 @@ body {
         '</div>' +
         '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:12px; display:flex; align-items:center; gap:8px;">' +
         '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#C4B89A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="12" height="10" rx="1"/><polyline points="6 2 6 5"/><polyline points="12 2 12 5"/><line x1="6" y1="9" x2="12" y2="9"/><line x1="6" y1="12" x2="10" y2="12"/></svg>' +
-        '多轮对话起草内容' +
+        '多轮对话起草合同内容' +
         '</div>' +
+        '<div style="font-size:11px; color:#999; margin-bottom:10px;">请确认起草合同内容，可直接在下方编辑，平台将按照您最新编辑的内容进行合同起草</div>' +
         '<div style="background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.06); padding:16px; border:1px solid #F0F0F0;">' +
         '<div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:12px;" onclick="toggleCollapseCard(this)">' +
         '<span style="font-size:14px; font-weight:600; color:#1a1a2e; padding-left:10px; border-left:3px solid #C4B89A;">文件名：采购实施合同</span>' +
@@ -4103,55 +4246,50 @@ body {
         '<div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.08); border:1px solid #F0F0F0;">' +
         '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">' +
         '<span style="font-size:16px; font-weight:700; color:#1A1A1A;">专家模式 · 任务执行中</span>' +
+        '<div style="display:flex; align-items:center; gap:8px;">' +
         '<span id="expertProgressPercent" style="font-size:12px; color:#999;">0%</span>' +
+        '</div>' +
         '</div>' +
         '<div style="width:100%; height:4px; background:#E8E8E8; border-radius:2px; margin-bottom:20px;">' +
         '<div id="expertProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg,#C4B89A,#A8D8A8); border-radius:2px; transition:width 0.6s ease;"></div>' +
         '</div>' +
         '<div style="display:flex; align-items:center; margin-bottom:14px;">' +
         '<span style="font-size:12px; color:#999; margin-right:8px;">执行顺序：</span>' +
-        '<span style="display:inline-block; background:#E8F5E9; color:#2E7D32; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">1. 多轮对话起草</span>' +
+        '<span style="display:inline-block; background:#E8F5E9; color:#2E7D32; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">1. 多轮对话起草合同</span>' +
         '<span style="color:#C4C4C4; margin:0 6px;">→</span>' +
-        '<span style="display:inline-block; background:#FFF3E0; color:#E65100; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">2. 错别字审查</span>' +
-        '<span style="color:#C4C4C4; margin:0 6px;">→</span>' +
-        '<span style="display:inline-block; background:#E3F2FD; color:#1565C0; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">3. 广告合规审查</span>' +
+        '<span style="display:inline-block; background:#FFF3E0; color:#E65100; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600; margin-left:6px;">2. 错别字审查</span>' +
+        '<span style="display:inline-block; background:#E3F2FD; color:#1565C0; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600; margin-left:6px;">3. 广告合规审查</span>' +
         '</div>' +
         '<div class="expert-agent-card" id="expertAgent1" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px;">' +
         '<div style="display:flex; align-items:center; justify-content:space-between;">' +
-        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
         '<span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:#F5F5F5; font-size:12px; color:#666;">草</span>' +
         '<span style="font-size:14px; font-weight:600; color:#1A1A1A;">多轮对话起草</span>' +
+        '<span id="expertStatus1" style="font-size:12px; color:#059669;">正在进行多轮对话起草…</span>' +
         '</div>' +
-        '<span id="expertStatus1" style="display:flex; align-items:center; gap:4px; font-size:12px; color:#059669;">' +
-        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#059669" stroke-width="2" style="animation:spin 1s linear infinite;"><circle cx="8" cy="8" r="6" stroke-dasharray="28" stroke-dashoffset="10"/></svg>' +
-        '正在进行多轮对话起草…' +
-        '</span>' +
+        '<span id="expertAgent1Btn" style="display:none;"></span>' +
         '</div>' +
         '<div id="expertBody1" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
         '</div>' +
         '<div class="expert-agent-card" id="expertAgent2" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px; opacity:0.5;">' +
-        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
-        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<div style="display:flex; align-items:center;">' +
+        '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
         '<span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:#FFF3E0; font-size:12px; color:#E65100;">错</span>' +
         '<span style="font-size:14px; font-weight:600; color:#1A1A1A;">错别字审查</span>' +
-        '</div>' +
         '<span id="expertStatus2" style="font-size:12px; color:#999;">等待中…</span>' +
+        '</div>' +
         '</div>' +
         '<div id="expertBody2" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
         '</div>' +
         '<div class="expert-agent-card" id="expertAgent3" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px; opacity:0.5;">' +
-        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
-        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<div style="display:flex; align-items:center;">' +
+        '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
         '<span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:#E3F2FD; font-size:11px; color:#1565C0;">A</span>' +
         '<span style="font-size:14px; font-weight:600; color:#1A1A1A;">广告合规审查</span>' +
-        '</div>' +
         '<span id="expertStatus3" style="font-size:12px; color:#999;">等待中…</span>' +
         '</div>' +
-        '<div id="expertBody3" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
         '</div>' +
-        '<div style="font-size:12px; color:#999; margin-top:8px; margin-bottom:12px;">系统将按此计划执行，您可取消不必要的任务步骤</div>' +
-        '<div style="display:flex; gap:10px;">' +
-        '<button onclick="document.getElementById(\'expertModeCard\').style.display=\'none\';" style="padding:8px 20px; border-radius:8px; background:#fff; color:#666; border:1px solid #D5D5D5; font-size:13px; cursor:pointer;">取消执行</button>' +
+        '<div id="expertBody3" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
         '</div>' +
         '</div></div>';
       chatMessages.appendChild(cardDiv);
@@ -4159,7 +4297,9 @@ body {
 
       setTimeout(function() {
         var s1 = document.getElementById('expertStatus1');
-        if (s1) s1.innerHTML = '<span style="color:#059669; font-size:12px;">已完成 &#10003;</span>';
+        if (s1) s1.innerHTML = '<span style="color:#E65100;">待确认起草内容…</span>';
+        var abtn = document.getElementById('expertAgent1Btn');
+        if (abtn) { abtn.style.display = 'inline'; abtn.innerHTML = '<button onclick="switchToTab(\'taskResult\')" style="background:#2E7D32; color:#fff; border:none; border-radius:16px; padding:6px 14px; cursor:pointer; font-size:12px;">确认起草合同 →</button>'; }
         var b1 = document.getElementById('expertBody1');
         if (b1) { b1.style.display = 'block'; b1.innerHTML = '合同关键信息已提取，6项核心内容已填写完成，请在右侧任务成果面板确认起草结果。'; }
         var a1 = document.getElementById('expertAgent1');
@@ -4199,18 +4339,22 @@ body {
         '</div>' +
         '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:12px; display:flex; align-items:center; gap:8px;">' +
         '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#C4B89A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="12" height="10" rx="1"/><polyline points="6 2 6 5"/><polyline points="12 2 12 5"/><line x1="6" y1="9" x2="12" y2="9"/><line x1="6" y1="12" x2="10" y2="12"/></svg>' +
-        '多轮对话起草内容' +
+        '多轮对话起草合同内容' +
         '</div>' +
+        '<div style="font-size:11px; color:#999; margin-bottom:10px;">请确认起草合同内容，可直接在下方编辑，平台将按照您最新编辑的内容进行合同起草</div>' +
         '<div style="background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.06); padding:16px; border:1px solid #F0F0F0; margin-bottom:14px;">' +
         '<div style="font-size:12px; color:#5A5A5A; line-height:2.2;">' +
-        '✅ 甲方名称：北京某某科技有限公司<br>' +
-        '✅ 乙方名称：上海某某软件有限公司<br>' +
-        '✅ 服务内容与范围：企业微信定制开发客户...<br>' +
-        '✅ 合同金额：50万元<br>' +
-        '✅ 付款方式：分3期（3:4:3）<br>' +
-        '✅ 服务期限：2024年7月1日-2025年6月30日' +
+        '<div style="margin-bottom:6px;">✅ 甲方名称：<input type="text" value="北京某某科技有限公司" style="border:none; border-bottom:1px solid #D5D5D5; padding:2px 4px; font-size:12px; color:#5A5A5A; outline:none; width:180px; background:transparent;" /></div>' +
+        '<div style="margin-bottom:6px;">✅ 乙方名称：<input type="text" value="上海某某软件有限公司" style="border:none; border-bottom:1px solid #D5D5D5; padding:2px 4px; font-size:12px; color:#5A5A5A; outline:none; width:180px; background:transparent;" /></div>' +
+        '<div style="margin-bottom:6px;">✅ 服务内容与范围：<input type="text" value="企业微信定制开发客户..." style="border:none; border-bottom:1px solid #D5D5D5; padding:2px 4px; font-size:12px; color:#5A5A5A; outline:none; width:200px; background:transparent;" /></div>' +
+        '<div style="margin-bottom:6px;">✅ 合同金额：<input type="text" value="50万元" style="border:none; border-bottom:1px solid #D5D5D5; padding:2px 4px; font-size:12px; color:#5A5A5A; outline:none; width:120px; background:transparent;" /></div>' +
+        '<div style="margin-bottom:6px;">✅ 付款方式：<input type="text" value="分3期（3:4:3）" style="border:none; border-bottom:1px solid #D5D5D5; padding:2px 4px; font-size:12px; color:#5A5A5A; outline:none; width:180px; background:transparent;" /></div>' +
+        '<div>✅ 服务期限：<input type="text" value="2024年7月1日-2025年6月30日" style="border:none; border-bottom:1px solid #D5D5D5; padding:2px 4px; font-size:12px; color:#5A5A5A; outline:none; width:220px; background:transparent;" /></div>' +
         '</div></div>' +
-        '<button id="confirmDraftBtn" onclick="confirmDraftAndContinue()" style="width:100%; padding:10px; border-radius:8px; background:#C4B89A; color:#fff; border:none; font-size:14px; font-weight:600; cursor:pointer;">确认起草，继续执行后续审查</button>' +
+        '<div style="display:flex; gap:10px;">' +
+        '<button id="confirmDraftViewPlanBtn" onclick="viewExpertPlan()" style="flex:1; padding:10px; border-radius:8px; background:#fff; color:#C4B89A; border:1px solid #C4B89A; font-size:14px; font-weight:600; cursor:pointer;">查看完整计划</button>' +
+        '<button id="confirmDraftBtn" onclick="confirmDraftAndContinue()" style="flex:2; padding:10px; border-radius:8px; background:#C4B89A; color:#fff; border:none; font-size:14px; font-weight:600; cursor:pointer;">确认起草合同</button>' +
+        '</div>' +
         '</div>';
     }
   }
@@ -4218,7 +4362,11 @@ body {
   window.confirmDraftAndContinue = function() {
     expertDraftConfirmed = true;
     var btn = document.getElementById('confirmDraftBtn');
-    if (btn) { btn.disabled = true; btn.style.background = '#ccc'; btn.style.cursor = 'default'; btn.innerText = '已确认，执行中…'; }
+    if (btn) { btn.disabled = true; btn.style.background = '#ccc'; btn.style.cursor = 'default'; btn.innerText = '已确认'; }
+    var s1 = document.getElementById('expertStatus1');
+    if (s1) s1.innerHTML = '<span style="color:#059669; font-size:12px;">已确认 &#10003;</span>';
+    var abtn = document.getElementById('expertAgent1Btn');
+    if (abtn) { abtn.style.display = 'none'; }
     var pb = document.getElementById('expertProgressBar');
     if (pb) pb.style.width = '45%';
     var pp = document.getElementById('expertProgressPercent');
@@ -4247,6 +4395,126 @@ body {
         if (a3el) a3el.style.borderLeft = '3px solid #1565C0';
       }, 1500);
     }, 1500);
+  };
+
+  // 专家模式 - 查看完整计划
+  window.viewExpertPlan = function() {
+    var existing = document.getElementById('expertPlanPopover');
+    if (existing) { existing.remove(); return; }
+
+    var popover = document.createElement('div');
+    popover.id = 'expertPlanPopover';
+    popover.className = 'expert-plan-popover';
+    popover.innerHTML =
+      '<div class="expert-plan-popover-header">' +
+      '<span>完整执行计划</span>' +
+      '<button class="expert-plan-popover-close" onclick="var p=document.getElementById(\'expertPlanPopover\');if(p){p.remove();}">&times;</button>' +
+      '</div>' +
+      '<div class="expert-plan-popover-body">' +
+      '<div class="expert-plan-step">' +
+      '<label class="expert-plan-checkbox"><input type="checkbox" checked onchange="toggleCheckAgent(this,\'agent1\')"><span class="checkmark"></span></label>' +
+      '<div class="expert-plan-step-icon draft">草</div>' +
+      '<div class="expert-plan-step-content">' +
+      '<h4>1. 多轮对话起草</h4>' +
+      '<p>通过多轮对话逐步明确合同需求，智能提取关键信息并填写合同核心条款，生成完整合同草案。</p>' +
+      '</div>' +
+      '</div>' +
+      '<div class="expert-plan-arrow">&darr;</div>' +
+      '<div class="expert-plan-step">' +
+      '<label class="expert-plan-checkbox"><input type="checkbox" checked onchange="toggleCheckAgent(this,\'agent2\')"><span class="checkmark"></span></label>' +
+      '<div class="expert-plan-step-icon typo">错</div>' +
+      '<div class="expert-plan-step-content">' +
+      '<h4>2. 错别字审查</h4>' +
+      '<p>扫描合同全文，检测错别字、语病、标点错误及格式不一致等问题，确保文本专业规范。</p>' +
+      '</div>' +
+      '</div>' +
+      '<div class="expert-plan-arrow">&darr;</div>' +
+      '<div class="expert-plan-step">' +
+      '<label class="expert-plan-checkbox"><input type="checkbox" checked onchange="toggleCheckAgent(this,\'agent3\')"><span class="checkmark"></span></label>' +
+      '<div class="expert-plan-step-icon ad">A</div>' +
+      '<div class="expert-plan-step-content">' +
+      '<h4>3. 广告合规审查</h4>' +
+      '<p>依据《广告法》及相关规定，审查合同中的宣传用语是否存在违禁词、夸大表述等合规风险。</p>' +
+      '</div>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(popover);
+    popover.style.display = 'block';
+
+    setTimeout(function() {
+      var clickOutside = function(e) {
+        var p = document.getElementById('expertPlanPopover');
+        var btn1 = document.getElementById('expertViewPlanBtn');
+        var btn2 = document.getElementById('confirmDraftViewPlanBtn');
+        if (p && !p.contains(e.target) && e.target !== btn1 && e.target !== btn2) {
+          p.remove();
+          document.removeEventListener('click', clickOutside);
+        }
+      };
+      document.addEventListener('click', clickOutside);
+    }, 50);
+  };
+
+  // 计划弹窗：智能体勾选切换
+  window.toggleCheckAgent = function(cb, agentId) {
+    // 预留：可在此处处理 agent 勾选状态变更
+  };
+
+  // 专家模式 - 确认执行倒计时
+  var expertCountdownTimer = null;
+  var expertCountdownRemaining = 10;
+  window.startExpertCountdown = function() {
+    var btn = document.getElementById('expertConfirmBtn');
+    var span = document.getElementById('expertCountdownSpan');
+    if (!btn || !span) return;
+    if (expertCountdownTimer) return;
+
+    btn.style.cursor = 'default';
+    btn.style.opacity = '0.8';
+    btn.onclick = cancelExpertCountdown;
+    btn.title = '点击取消倒计时';
+
+    expertCountdownRemaining = 10;
+    span.textContent = '(' + expertCountdownRemaining + 's)';
+
+    expertCountdownTimer = setInterval(function() {
+      expertCountdownRemaining--;
+      span.textContent = '(' + expertCountdownRemaining + 's)';
+      if (expertCountdownRemaining <= 0) {
+        clearInterval(expertCountdownTimer);
+        expertCountdownTimer = null;
+        span.textContent = '';
+        btn.style.cursor = 'pointer';
+        btn.style.opacity = '1';
+        btn.title = '';
+        btn.onclick = null;
+        confirmDraftAndContinue();
+      }
+    }, 1000);
+  };
+
+  // 专家模式 - 取消倒计时
+  window.cancelExpertCountdown = function() {
+    if (expertCountdownTimer) {
+      clearInterval(expertCountdownTimer);
+      expertCountdownTimer = null;
+    }
+    var btn = document.getElementById('expertConfirmBtn');
+    var span = document.getElementById('expertCountdownSpan');
+    if (btn) {
+      btn.style.cursor = 'pointer';
+      btn.style.opacity = '1';
+      btn.title = '';
+      btn.onclick = startExpertCountdown;
+    }
+    if (span) span.textContent = '';
+  };
+
+  // 专家模式 - 取消执行
+  window.cancelExpertCard = function() {
+    cancelExpertCountdown();
+    var card = document.getElementById('expertModeCard');
+    if (card) card.style.display = 'none';
   };
 
   // 制度合法性审查场景
