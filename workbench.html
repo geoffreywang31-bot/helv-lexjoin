@@ -2559,6 +2559,8 @@ body {
   flex-shrink: 0;
 }
 
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 </style>
 </head>
 <body>
@@ -3985,6 +3987,12 @@ body {
     chatInput.style.height = 'auto';
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
+    // 检测专家模式（起草 + 错别字审查 + 广告合规审查）
+    if (text.indexOf('起草') !== -1 && (text.indexOf('错别字') !== -1 || text.indexOf('广告') !== -1) && text.indexOf('审查') !== -1) {
+      showExpertModeCard(chatMessages, text);
+      return;
+    }
+
     // 检测合同起草场景关键词
     if (text.indexOf('起草') !== -1) {
       sendDraftContractScenario(chatMessages);
@@ -4083,6 +4091,163 @@ body {
         '</div>';
     }
   }
+
+  // ── 专家模式卡片（多轮对话起草 + 错别字审查 + 广告合规审查串联） ──
+  window.showExpertModeCard = function(chatMessages, text) {
+    setTimeout(function() {
+      var cardDiv = document.createElement('div');
+      cardDiv.className = 'msg msg-ai';
+      cardDiv.id = 'expertModeCard';
+      cardDiv.innerHTML = '<div class="msg-body" style="max-width:640px;">' +
+        '<div class="msg-meta"><span class="msg-avatar">L</span><span>LexForge Agent</span></div>' +
+        '<div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.08); border:1px solid #F0F0F0;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">' +
+        '<span style="font-size:16px; font-weight:700; color:#1A1A1A;">专家模式 · 任务执行中</span>' +
+        '<span id="expertProgressPercent" style="font-size:12px; color:#999;">0%</span>' +
+        '</div>' +
+        '<div style="width:100%; height:4px; background:#E8E8E8; border-radius:2px; margin-bottom:20px;">' +
+        '<div id="expertProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg,#C4B89A,#A8D8A8); border-radius:2px; transition:width 0.6s ease;"></div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:center; margin-bottom:14px;">' +
+        '<span style="font-size:12px; color:#999; margin-right:8px;">执行顺序：</span>' +
+        '<span style="display:inline-block; background:#E8F5E9; color:#2E7D32; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">1. 多轮对话起草</span>' +
+        '<span style="color:#C4C4C4; margin:0 6px;">→</span>' +
+        '<span style="display:inline-block; background:#FFF3E0; color:#E65100; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">2. 错别字审查</span>' +
+        '<span style="color:#C4C4C4; margin:0 6px;">→</span>' +
+        '<span style="display:inline-block; background:#E3F2FD; color:#1565C0; font-size:11px; padding:2px 10px; border-radius:10px; font-weight:600;">3. 广告合规审查</span>' +
+        '</div>' +
+        '<div class="expert-agent-card" id="expertAgent1" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
+        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:#F5F5F5; font-size:12px; color:#666;">草</span>' +
+        '<span style="font-size:14px; font-weight:600; color:#1A1A1A;">多轮对话起草</span>' +
+        '</div>' +
+        '<span id="expertStatus1" style="display:flex; align-items:center; gap:4px; font-size:12px; color:#059669;">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#059669" stroke-width="2" style="animation:spin 1s linear infinite;"><circle cx="8" cy="8" r="6" stroke-dasharray="28" stroke-dashoffset="10"/></svg>' +
+        '正在进行多轮对话起草…' +
+        '</span>' +
+        '</div>' +
+        '<div id="expertBody1" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
+        '</div>' +
+        '<div class="expert-agent-card" id="expertAgent2" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px; opacity:0.5;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
+        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:#FFF3E0; font-size:12px; color:#E65100;">错</span>' +
+        '<span style="font-size:14px; font-weight:600; color:#1A1A1A;">错别字审查</span>' +
+        '</div>' +
+        '<span id="expertStatus2" style="font-size:12px; color:#999;">等待中…</span>' +
+        '</div>' +
+        '<div id="expertBody2" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
+        '</div>' +
+        '<div class="expert-agent-card" id="expertAgent3" style="background:#fff; border:1px solid #E5E5E5; border-radius:10px; padding:14px; margin-bottom:10px; opacity:0.5;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
+        '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:#E3F2FD; font-size:11px; color:#1565C0;">A</span>' +
+        '<span style="font-size:14px; font-weight:600; color:#1A1A1A;">广告合规审查</span>' +
+        '</div>' +
+        '<span id="expertStatus3" style="font-size:12px; color:#999;">等待中…</span>' +
+        '</div>' +
+        '<div id="expertBody3" style="font-size:12px; color:#5A5A5A; margin-top:8px; line-height:1.6; display:none;"></div>' +
+        '</div>' +
+        '<div style="font-size:12px; color:#999; margin-top:8px; margin-bottom:12px;">系统将按此计划执行，您可取消不必要的任务步骤</div>' +
+        '<div style="display:flex; gap:10px;">' +
+        '<button onclick="document.getElementById(\'expertModeCard\').style.display=\'none\';" style="padding:8px 20px; border-radius:8px; background:#fff; color:#666; border:1px solid #D5D5D5; font-size:13px; cursor:pointer;">取消执行</button>' +
+        '</div>' +
+        '</div></div>';
+      chatMessages.appendChild(cardDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      setTimeout(function() {
+        var s1 = document.getElementById('expertStatus1');
+        if (s1) s1.innerHTML = '<span style="color:#059669; font-size:12px;">已完成 &#10003;</span>';
+        var b1 = document.getElementById('expertBody1');
+        if (b1) { b1.style.display = 'block'; b1.innerHTML = '合同关键信息已提取，6项核心内容已填写完成，请在右侧任务成果面板确认起草结果。'; }
+        var a1 = document.getElementById('expertAgent1');
+        if (a1) a1.style.borderLeft = '3px solid #059669';
+        var pb = document.getElementById('expertProgressBar');
+        if (pb) pb.style.width = '35%';
+        var pp = document.getElementById('expertProgressPercent');
+        if (pp) pp.innerText = '35%';
+        var a2 = document.getElementById('expertAgent2');
+        if (a2) a2.style.opacity = '1';
+        var s2 = document.getElementById('expertStatus2');
+        if (s2) s2.innerHTML = '<span style="color:#999;">等待确认起草…</span>';
+        updateDraftReportPanelWithConfirm();
+      }, 2000);
+    }, 300);
+  };
+
+  var expertDraftConfirmed = false;
+  function updateDraftReportPanelWithConfirm() {
+    window.currentScene = 'draft';
+    var rp = document.getElementById('reportPanel');
+    if (rp) rp.style.display = 'flex';
+    switchToTab('genFiles');
+    if (tabTaskResult) {
+      tabTaskResult.innerHTML = '<div style="padding:16px;">' +
+        '<div style="font-size:16px; font-weight:700; color:#1A1A1A; text-align:center; margin-bottom:4px;">完整结果</div>' +
+        '<div style="display:flex; justify-content:space-between; font-size:11px; color:#999; border-bottom:1px solid #E5E5E5; padding-bottom:10px; margin-bottom:12px;">' +
+        '<span>生成: 15:35:22&nbsp;&nbsp;&nbsp;&nbsp;ID: REP-20260527-001</span>' +
+        '<span style="display:flex; align-items:center; gap:6px;">文件名称 <select style="border:1px solid #D5D5D5; border-radius:6px; padding:3px 8px; font-size:12px;"><option selected>全部文件</option></select></span>' +
+        '</div>' +
+        '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:10px;">分析总结</div>' +
+        '<div style="font-size:12px; color:#5A5A5A; line-height:1.8; margin-bottom:16px;">' +
+        '<strong>任务成果：技术服务合同</strong> ✅ 已完成（6/6 项填空）<br>' +
+        '📋 <strong>模板信息：</strong><br>' +
+        '&nbsp;&nbsp;• 模板名称：技术服务合同（标准版）<br>' +
+        '&nbsp;&nbsp;• 总填空项：6项 • 全部已填写' +
+        '</div>' +
+        '<div style="font-size:14px; font-weight:600; color:#1A1A1A; margin-bottom:12px; display:flex; align-items:center; gap:8px;">' +
+        '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#C4B89A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="12" height="10" rx="1"/><polyline points="6 2 6 5"/><polyline points="12 2 12 5"/><line x1="6" y1="9" x2="12" y2="9"/><line x1="6" y1="12" x2="10" y2="12"/></svg>' +
+        '多轮对话起草内容' +
+        '</div>' +
+        '<div style="background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.06); padding:16px; border:1px solid #F0F0F0; margin-bottom:14px;">' +
+        '<div style="font-size:12px; color:#5A5A5A; line-height:2.2;">' +
+        '✅ 甲方名称：北京某某科技有限公司<br>' +
+        '✅ 乙方名称：上海某某软件有限公司<br>' +
+        '✅ 服务内容与范围：企业微信定制开发客户...<br>' +
+        '✅ 合同金额：50万元<br>' +
+        '✅ 付款方式：分3期（3:4:3）<br>' +
+        '✅ 服务期限：2024年7月1日-2025年6月30日' +
+        '</div></div>' +
+        '<button id="confirmDraftBtn" onclick="confirmDraftAndContinue()" style="width:100%; padding:10px; border-radius:8px; background:#C4B89A; color:#fff; border:none; font-size:14px; font-weight:600; cursor:pointer;">确认起草，继续执行后续审查</button>' +
+        '</div>';
+    }
+  }
+
+  window.confirmDraftAndContinue = function() {
+    expertDraftConfirmed = true;
+    var btn = document.getElementById('confirmDraftBtn');
+    if (btn) { btn.disabled = true; btn.style.background = '#ccc'; btn.style.cursor = 'default'; btn.innerText = '已确认，执行中…'; }
+    var pb = document.getElementById('expertProgressBar');
+    if (pb) pb.style.width = '45%';
+    var pp = document.getElementById('expertProgressPercent');
+    if (pp) pp.innerText = '45%';
+    var s2 = document.getElementById('expertStatus2');
+    if (s2) s2.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#E65100" stroke-width="2" style="animation:spin 1s linear infinite;"><circle cx="8" cy="8" r="6" stroke-dasharray="28" stroke-dashoffset="10"/></svg> 正在进行错别字审查…';
+    setTimeout(function() {
+      if (pb) pb.style.width = '65%';
+      if (pp) pp.innerText = '65%';
+      if (s2) s2.innerHTML = '<span style="color:#E65100; font-size:12px;">已完成 &#10003; 发现错别字0处，标点不规范2处</span>';
+      var b2 = document.getElementById('expertBody2');
+      if (b2) { b2.style.display = 'block'; b2.innerHTML = '✓ 错别字：0处<br>⚠ 标点符合不规范：2处'; }
+      var a2 = document.getElementById('expertAgent2');
+      if (a2) a2.style.borderLeft = '3px solid #E65100';
+      var a3 = document.getElementById('expertAgent3');
+      if (a3) a3.style.opacity = '1';
+      var s3 = document.getElementById('expertStatus3');
+      if (s3) s3.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1565C0" stroke-width="2" style="animation:spin 1s linear infinite;"><circle cx="8" cy="8" r="6" stroke-dasharray="28" stroke-dashoffset="10"/></svg> 正在进行广告合规审查…';
+      setTimeout(function() {
+        if (pb) pb.style.width = '100%';
+        if (pp) pp.innerText = '100%';
+        if (s3) s3.innerHTML = '<span style="color:#1565C0; font-size:12px;">已完成 &#10003; 通过</span>';
+        var b3 = document.getElementById('expertBody3');
+        if (b3) { b3.style.display = 'block'; b3.innerHTML = '✓ 广告词合规性：通过<br>✓ 禁用词检查：未发现违禁词'; }
+        var a3el = document.getElementById('expertAgent3');
+        if (a3el) a3el.style.borderLeft = '3px solid #1565C0';
+      }, 1500);
+    }, 1500);
+  };
 
   // 制度合法性审查场景
   window.sendRegulationReviewScenario = function(chatMessages) {
